@@ -37,7 +37,7 @@ classdef possim
 
         function out = sim(obj, T, sys, x0)
             %simulate a discrete-time positive system trajectory with Linf 
-            %bounded noise
+            %bounded            %noise
             out = struct;
 
             if nargin < 2

@@ -5,7 +5,6 @@ PS = possim(3, 2);
 
 sys = PS.rand_sys(1.4);
 
-
 T = 20;
 traj = PS.sim(T, sys);
 
