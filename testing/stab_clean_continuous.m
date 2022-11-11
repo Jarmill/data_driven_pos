@@ -1,20 +1,20 @@
 rng(30, 'twister')
 
-% n = 3;
-% m = 2; %feasible
+n = 3;
+m = 2; %feasible
 
 % n = 5; %feasible
 % m = 4;
 
-n = 7; %feasible
-m = 7;
+% n = 7; %feasible
+% m = 7;
 
-n = 4; %feasible
-m = 5;
+% n = 4; %feasible
+% m = 5;
 PS = possim_cont(n, m);
 
-% sys = PS.rand_sys(1.4);
-sys = PS.rand_sys(0.5);
+sys = PS.rand_sys(1.4);
+% sys = PS.rand_sys(0.5);
 
 %this is unstable at the current settings
 es = eig(sys.A);
@@ -56,7 +56,7 @@ cons = [cons; stabcon >= delta; poscon >= 0];
 opts = sdpsettings;
 opts.robust.lplp='duality';
 
-sol = optimize(cons,norm(y_rec, 'inf'), opts);
+sol = optimize(cons,0, opts);
 
 
 %% recover
@@ -73,4 +73,7 @@ else
 
     sys_clp = sys.A + sys.B*K_rec
     e_clp = eig(sys_clp)'
+    
+    out_clean = struct('y', y_rec, 'v', v_rec, 'S', S_rec, 'K', K_rec,...
+        'A', sys.A, 'B', sys.B);
 end

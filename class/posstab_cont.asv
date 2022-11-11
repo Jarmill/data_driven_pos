@@ -51,13 +51,11 @@ classdef posstab_cont < posstab
         function cons = pos_cons_closed(obj, vars)
             %the closed-loop system should also be positive (Metzler)
             n = size(vars.A, 1);
-            sblock = (vars.A*diag(vars.y) + vars.B*vars.S);
-            pall = reshape((1-eye(n)).*sblock, [], 1);
-            cons = (pall >= 0);
-            
-%             cons = [];
+%             pall = reshape((1-eye(n)).*(vars.A*diag(vars.y) + vars.B*vars.S), [], 1);
+%             cons = (pall >= 0);
 
-%             screen = 1- 2*eye(n);
+            screen = 1- 2*eye(n);
+            cons = screen(vars.A*diag(vars.y) + vars.B*vars.S)
 
         end
     end

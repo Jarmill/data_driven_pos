@@ -7,7 +7,7 @@ classdef posstab
         %start traj with only one trajectory, then expand to multiple
         traj; %trajectory trace
         
-        delta = 1e-4; %tolerance for a strict inequality to be positive       
+        delta = 1e-3; %tolerance for a strict inequality to be positive       
         
         opts = sdpsettings('solver', 'mosek','robust.lplp', 'duality');
 
@@ -75,12 +75,12 @@ classdef posstab
            m = size(obj.traj.U, 1);
            
            %uncertain variables
-           A = sdpvar(n, n);
-           B = sdpvar(n, m);
+           A = sdpvar(n, n, 'full');
+           B = sdpvar(n, m, 'full');
            
            %decision variables
            y = sdpvar(n, 1);
-           S = sdpvar(m, n);
+           S = sdpvar(m, n, 'full');
            
            vars = struct('A', A, 'B', B, 'y', y, 'S', S);                      
         end
