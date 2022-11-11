@@ -1,4 +1,4 @@
-function poly = data_cons(traj, nontrivial)
+function [C, d] = data_cons(traj, nontrivial)
     %DATA_CONS generate the Linf-polytope constraints associated
     %with the data in traj
     %
@@ -9,6 +9,9 @@ function poly = data_cons(traj, nontrivial)
     %               Xdelta:     next state (discrete) or derivative
     %                           (continuous)
     %               U:          applied input
+    %
+    %Outputs:   
+    %   [C, d]:     Polytope C x <= d
 
     %column-wise vectorization of [A; B];
 
@@ -55,10 +58,10 @@ function poly = data_cons(traj, nontrivial)
     
     if nontrivial    
         [C_red, d_red] = nontrivial_constraints(C, d);
-        poly = struct('A', C_red, 'b', d_red);
+        poly = struct('A', C_red, 'b', d_red, 'F_old', length(d), 'F_new', length(d_red));
     else
         poly = struct('A', C, 'b', d);
-    end
+    end        
     
 
 end
