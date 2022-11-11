@@ -1,11 +1,14 @@
-rng(30, 'twister')
+rng(40, 'twister')
 
-PS = possim(3, 2);
+n= 3;
+m =3;
+
+PS = possim(n, m);
 
 
-sys = PS.rand_sys(1.4);
+sys = PS.rand_sys(1.2);
 
-T = 20;
+T = 30;
 traj = PS.sim(T, sys);
 
 ST = posstab(traj);
@@ -13,8 +16,13 @@ ST = posstab(traj);
 out = ST.stab();
 
 %% recover and evaluate
-sys_clp_true = sys.A + sys.B*out.K
-eig_clp = abs(eig(sys_clp_true))'
+if out.sol.problem
+    disp('infeasible')
+else
+    sys_clp_true = sys.A + sys.B*out.K;
+    eig_clp = abs(eig(sys_clp_true))'
+end
+
 
 
 

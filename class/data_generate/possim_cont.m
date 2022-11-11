@@ -33,9 +33,7 @@ classdef possim_cont < possim
             
                 
 
-            obj.sampler = struct('u', @() 2*rand(obj.m, 1)-1, ...
-                                 'w', @() 2*rand(obj.n, 1)-1, ...
-                                 'x', @() rand(obj.n, 1)*obj.Rmax);
+            obj.sampler.x=@() rand(obj.n, 1)*obj.Rmax;
 %                                  'w', @() normalize(randn(obj.n,1), 1, 'norm', 2));
 
             %             obj.Property1 = inputArg1 + inputArg2;

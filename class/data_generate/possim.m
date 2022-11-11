@@ -28,7 +28,7 @@ classdef possim
             end
                 
 
-            obj.sampler = struct('u', @() 2*rand(obj.m, 1)-1, ...
+            obj.sampler = struct('u', @(x) 2*rand(obj.m, 1)-1, ...
                                  'w', @() 2*rand(obj.n, 1)-1);
 %                                  'w', @() normalize(randn(obj.n,1), 1, 'norm', 2));
 
@@ -62,7 +62,7 @@ classdef possim
                 %inputs
                 
                 wcurr = obj.sampler.w()*obj.epsilon;
-                ucurr = obj.sampler.u();
+                ucurr = obj.sampler.u(xcurr);
                 
                 %propagation 
                 %this is where the noise enters (process ?)
