@@ -9,7 +9,7 @@ classdef posstab
         
         delta = 1e-4; %tolerance for a strict inequality to be positive       
         
-        opts = sdpsettings('solver', 'mosek');
+        opts = sdpsettings('solver', 'mosek','robust.lplp', 'duality');
 
         poly;
 
@@ -24,6 +24,68 @@ classdef posstab
             [C, d] = obj.data_cons(traj);
             obj.poly = struct('C', C, 'd', d);
         end
+        
+        function [out] = solve_program(obj, cons, objective, vars)
+            %run the program
+            sol = optimize(cons, objective, obj.opts);
+            out.sol = sol;
+            
+            if sol.problem==0
+                %successful trajectory execution
+                out = obj.recover(vars, sol);
+            end
+        end   
+        
+        function [out] = stab(obj)
+            %STAB: main stabilization routine and execution
+            [cons, vars] = obj.make_program();
+            out = obj.solve_program(cons, 0, vars);
+        end
+        
+        %% helper programs
+        
+        function [cons, vars] = make_program(obj)
+           %MAKE_PROGRAM form the LMI program in YALMIP
+            vars =  obj.make_vars();
+            
+            %valid and normalized (inverse) lyapunov weights
+            cons_vars = [vars.y >= obj.delta; sum(vars.y)==1];
+            
+            pall = reshape([vars.A, vars.B], [], 1);
+            cons_data = (obj.poly.d - obj.poly.C*pall) >= 0;
+            
+            cons_stab = obj.cons_stab(vars);
+            
+            cons_pos_closed = obj.pos_cons_closed(vars);
+            
+            cons = [uncertain(pall); cons_vars; cons_data; cons_stab; cons_pos_closed];
+        end       
+        
+        function cons = cons_stab(obj, vars)
+            %constraint to enforce stability
+            n = size(vars.A, 1);
+            stab = vars.y' - ones(1, n)*(vars.A*diag(vars.y) + vars.B*vars.S);
+            
+            cons = (stab >= obj.delta);
+        end
+        
+        function [vars] = make_vars(obj)
+            %generate uncertain and decision variables
+           n = size(obj.traj.Xdelta, 1);
+           m = size(obj.traj.U, 1);
+           
+           %uncertain variables
+           A = sdpvar(n, n);
+           B = sdpvar(n, m);
+           
+           %decision variables
+           y = sdpvar(n, 1);
+           S = sdpvar(m, n);
+           
+           vars = struct('A', A, 'B', B, 'y', y, 'S', S);                      
+        end
+        
+    
         
         function [C, d] = data_cons(obj, traj)
             %DATA_CONS generate the polytope constraint associated with the
@@ -53,8 +115,6 @@ classdef posstab
             %Outputs:
             %   [Cpos, dpos]: Polytope Cpos x <= dpos for parameters x 
             %           (vectorized [A;B])     
-            
-            
             n = size(traj.Xdelta, 1);
             m = size(traj.U, 1);
             
@@ -63,8 +123,29 @@ classdef posstab
             vpos = -ones(1, n^2);
             
             Cpos = sparse(ipos, jpos, vpos, n^2, n*(n+m));
-            dpos = sparse([], [], [], n^2, 1);
+            dpos = sparse([], [], [], n^2, 1);                        
+        end
+        
+        function cons = pos_cons_closed(obj, vars)
+            %the closed-loop system should also be positive (nonnegative)
+            pall = reshape(vars.A* diag(vars.y) + vars.B*vars.S, [], 1);
+            cons = (pall >= 0);
+        end
+        
+        %% recovery
+        function out = recover(obj, vars, sol)
+            %RECOVER get the controllers and parameters
+            out = struct;
+            %variables
+            out.sol = sol;
             
+            %copositive linear control lyapunov function
+            out.y = value(vars.y);
+            out.v = 1./out.y;
+            
+            %control action
+            out.S = value(vars.S);
+            out.K = out.S*diag(out.v);
             
         end
     end

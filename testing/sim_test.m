@@ -8,11 +8,13 @@ sys = PS.rand_sys(1.4);
 T = 20;
 traj = PS.sim(T, sys);
 
-ST = posstab(traj)
+ST = posstab(traj);
 
-% 
-% [C, d] = data_cons(traj, 1);
-% 
-% pall = reshape([sys.A,sys.B], [], 1);
-% 
-% check = C - d*pall;
+out = ST.stab();
+
+%% recover and evaluate
+sys_clp_true = sys.A + sys.B*out.K
+eig_clp = abs(eig(sys_clp_true))'
+
+
+

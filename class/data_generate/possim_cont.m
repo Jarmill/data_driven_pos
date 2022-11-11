@@ -18,7 +18,7 @@ classdef possim_cont < possim
             
 %             if nargin ==3
 
-            if nargin <= 2
+            if nargin < 2
                 n = 3;
                 m=2 ;
             end

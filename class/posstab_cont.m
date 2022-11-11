@@ -28,11 +28,8 @@ classdef posstab_cont < posstab
             n = size(traj.Xdelta, 1);
             m = size(traj.U, 1);
             
-
+            %only touch the off-diagonal elements
             mask_offdiag = logical(reshape(1-eye(n), [], 1));            
-%             jpos = (1:n^2);
-%             jpos = jpos(mask_offdiag);
-            
             jpos = find(mask_offdiag);
 
             ncon = sum(mask_offdiag);            
@@ -40,9 +37,22 @@ classdef posstab_cont < posstab
             vpos = -ones(1, ncon);
             
             Cpos = sparse(ipos, jpos, vpos, ncon, n*(n+m));
-            dpos = sparse([], [], [], ncon, 1);
+            dpos = sparse([], [], [], ncon, 1);     
+        end
+        
+        function cons = cons_stab(obj, vars)
+            %constraint to enforce stability
+            n = size(vars.A, 1);
+            stab = -ones(1, n)*(vars.A*diag(vars.y) + vars.B*vars.S);
             
-            
+            cons = (stab >= obj.delta);
+        end
+        
+        function cons = pos_cons_closed(obj, vars)
+            %the closed-loop system should also be positive (Metzler)
+            n = size(vars.A, 1);
+            pall = reshape((1-eye(n)).*(vars.A*diag(vars.y) + vars.B*vars.S), [], 1);
+            cons = (pall >= 0);
         end
     end
 end
