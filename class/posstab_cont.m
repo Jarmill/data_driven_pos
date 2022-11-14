@@ -28,16 +28,16 @@ classdef posstab_cont < posstab
             n = size(traj.Xdelta, 1);
             m = size(traj.U, 1);
             
-            %only touch the off-diagonal elements
+            %only touch the off-diagonal elements of A
             mask_offdiag = logical(reshape(1-eye(n), [], 1));            
-            jpos = find(mask_offdiag);
-
-            ncon = sum(mask_offdiag);            
-            ipos = (1:ncon);
-            vpos = -ones(1, ncon);
+            jpos = [find(mask_offdiag); (n^2 + (1:(n*m)))];
             
-            Cpos = sparse(ipos, jpos, vpos, ncon, n*(n+m));
-            dpos = sparse([], [], [], ncon, 1);     
+            ncon = sum(mask_offdiag);            
+            ipos = (1:(ncon + (n*m)));
+            vpos = -ones(1, ncon+(n*m));
+            
+            Cpos = sparse(ipos, jpos, vpos, ncon+(n*m), n*(n+m));
+            dpos = sparse([], [], [], ncon+(n*m), 1);     
         end
         
         function cons = cons_stab(obj, vars)
