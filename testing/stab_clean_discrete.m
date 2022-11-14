@@ -6,8 +6,12 @@ m = 2; %feasible
 n = 5; %feasible
 m = 4;
 
-% n = 6; %infeasible
+% n = 6; %feasible
 % m = 4;
+n = 20; %infeasible
+m = 8;
+
+
 PS = possim(n, m);
 
 % sys = PS.rand_sys(1.4);

@@ -117,7 +117,7 @@ classdef possim_cont < possim
             end
             
             A = abs(randn(obj.n, obj.n));
-            B = randn(obj.n, obj.m);
+            B = abs(randn(obj.n, obj.m)); %B should be nonnegative
             
             s = 2*sign(rand(obj.n, 1) - obj.p_pos)-1;
             %Metzler matrix: off-diagonal signs are allowed to be
@@ -130,7 +130,7 @@ classdef possim_cont < possim
 
             sys_pos = struct;
             sys_pos.A = A/norm(A)*A_scale;
-            sys_pos.B = B/norm(B)*A_scale;
+            sys_pos.B = B/norm(B);
         end               
 
     

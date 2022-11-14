@@ -112,12 +112,12 @@ classdef possim
             end
             
             A = abs(randn(obj.n, obj.n));
-            B = randn(obj.n, obj.m);
+            B = abs(randn(obj.n, obj.m)); %B should be nonnegative
             %package the output
 
             sys_pos = struct;
             sys_pos.A = A/norm(A)*A_scale;
-            sys_pos.B = B/norm(B)*A_scale;
+            sys_pos.B = B/norm(B);
         end
         
         function sys_smp = sample_sys(obj, traj, Nsys)

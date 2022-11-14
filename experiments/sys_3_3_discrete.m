@@ -1,6 +1,6 @@
 SOLVE = 1;
-SAMPLE = 1;
-PLOT = 1;
+SAMPLE = 0;
+PLOT = 0;
 n = 3;
 m=3;
 
@@ -11,18 +11,29 @@ PS = possim(n, m);
 
 sys = PS.rand_sys(1.4);
 
-T = 20;
+% T = 20;
+T = 30;
 traj = PS.sim(T, sys);
+
 
 %% Solve system
 if SOLVE
 ST = posstab(traj);
+ST.opts.solver='linprog';
+
+% ST.nontrivial = 0;
+
+pall_true = reshape([sys.A, sys.B], [], 1);
+check_poly = ST.poly.d - ST.poly.C*pall_true;
 
 out = ST.stab();
-
+if ~out.sol.problem
 % recover and evaluate
 sys_clp_true = sys.A + sys.B*out.K
 eig_clp = abs(eig(sys_clp_true))'
+else
+    disp('infeasible');
+end
 end
 
 %% Sample trajectories
