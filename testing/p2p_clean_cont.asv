@@ -23,15 +23,11 @@ S = sdpvar(m, n);
 gamma = sdpvar(1, 1);
 %parameters of p2p problem
 
-p = 3; %number of external inputs
-% q=n+m; %number of controlled outputs
-q = n+m;
-C = [eye(n);zeros(m, n)];
-D = [zeros(n, m); eye(m)];
-% D = 0.1*ones(n, m);
+p = 1; %number of external inputs
+q=n+m; %number of controlled outputs
 % C = [eye(n); zeros(m, n)]; %like an LQR setup for (C, D)
-% C = rand(q, n);
-% D = zeros(q, m);
+C = rand(q, n);
+D = zeros(q, m);
 % D = [zeros(n, m); eye(m)*0.5];
 E = eye(n, p);
 F = zeros(q, p);
@@ -46,12 +42,12 @@ X = diag(y);
 %condition (6.2) of https://ieeexplore.ieee.org/document/8618689
 %equation (12) of https://arxiv.org/pdf/1204.3554.pdf
 Abar = (sys.A*X + sys.B*S);
-Cbar = (C*X + D*S);
+Cbar = 
 term_x = -Abar *ones(n, 1) - E*ones(p, 1);
-term_z = gamma*ones(q, 1) - Cbar*ones(n, 1) - F*ones(p, 1);
+term_z = gamma*ones(q, 1) - (C*X + D*S)*ones(n, 1) - F*ones(p, 1);
 
-poscon_x =  reshape((1-eye(n)).*Abar, [], 1);
-poscon_z = reshape(Cbar, [], 1);
+poscon_x =  reshape((1-eye(n)).*(sys.A* diag(y) + sys.B*S), [], 1);
+poscon_z = reshape(C*X + D*S, [], 1);
 % poscon_z = 0;
 cons = [cons; [term_x; term_z] >= delta; [poscon_x; poscon_z] >= 0];
 
