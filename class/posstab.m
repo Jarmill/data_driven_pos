@@ -38,10 +38,11 @@ classdef posstab
             end
         end   
         
-        function [out] = stab(obj)
+        function [out] = run(obj)
             %STAB: main stabilization routine and execution
             [cons, vars] = obj.make_program();
-            out = obj.solve_program(cons, 0, vars);
+            objective = obj.make_objective(vars);
+            out = obj.solve_program(cons, objective, vars);
         end
         
         %% helper programs
@@ -56,21 +57,26 @@ classdef posstab
             pall = reshape([vars.A, vars.B], [], 1);
             cons_data = (obj.poly.d - obj.poly.C*pall) >= 0;
             
-            cons_stab = obj.cons_stab(vars);
+            [cons_stab, stab_label]= obj.cons_stab(vars);
             
             cons_pos_closed = obj.pos_cons_closed(vars);
             
             cons = [uncertain(pall):'Plant (A, B)'; cons_vars:'Lyap Nonneg';...
-                cons_data:'Data Consistency'; cons_stab:'Stability'; ...
+                cons_data:'Data Consistency'; cons_stab:stab_label; ...
                 cons_pos_closed:'Closed-loop positive'];
         end       
         
-        function cons = cons_stab(obj, vars)
+        function objective = make_objective(obj, vars)
+            objective = 0;
+        end
+        
+        function [cons, stab_label]= cons_stab(obj, vars)
             %constraint to enforce stability
             n = size(vars.A, 1);
 %             stab = vars.y' - ones(1, n)*(vars.A*diag(vars.y) + vars.B*vars.S);
             stab = vars.y - (vars.A*diag(vars.y) + vars.B*vars.S)*ones(n, 1);
             cons = (stab >= obj.delta);
+            stab_label = 'Stability';
         end
         
         function [vars] = make_vars(obj)

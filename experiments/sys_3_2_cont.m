@@ -5,9 +5,9 @@ PLOT = 0;
 rng(30, 'twister')
 n = 3; m = 2;  T = 12; %works
 
-%other tests don't work. why?
-rng(60, 'twister')
-n = 5; m = 4; T = 90;
+% %other tests don't work. why?
+% rng(60, 'twister')
+% n = 5; m = 4; T = 90;
 
 
 PS = possim_cont(n, m);
@@ -26,7 +26,7 @@ check_poly = ST.poly.d - ST.poly.C*pall_true;
 
 %% solve
 if SOLVE
-out = ST.stab();
+out = ST.run();
 
 %% recover and evaluate
 if ~out.sol.problem

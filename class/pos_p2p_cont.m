@@ -1,17 +1,19 @@
-classdef posstab_cont < posstab
-    %POSSTAB_CONT Data-driven stabilization of a continuous-time linear 
-    %positive system using full-state-feedback and a common linear 
-    %copositive control lyapunov function
-    
+classdef pos_p2p_cont < pos_p2p
+    %POS_P2P_CONT Peak-to-Peak (Linf) gain minimization
+    % xdot = A x + B u + E w
+    % z  = C x + D u + F w
+    %
+    % Choose a K: u = K x such that the Linf gain between w and z is
+    % minimized.
     
     methods
-        function obj = posstab_cont(traj)
-            %POSSTAB_CONT Construct an instance of this class
+        function obj = pos_p2p_cont(traj, param)
+            %POS_P2P_CONT Construct an instance of this class
             %   Detailed explanation goes here
-            obj@posstab(traj);
+            obj@pos_p2p(traj, param);
         end
         
-        function [Cpos, dpos] = pos_cons(obj, traj)
+    function [Cpos, dpos] = pos_cons(obj, traj)
             %POS_CONS generate linear constraints such that the
             %ground-truth system is positive
             %
@@ -40,14 +42,23 @@ classdef posstab_cont < posstab
             dpos = sparse([], [], [], ncon+(n*m), 1);     
         end
         
-        function [cons, stab_label] = cons_stab(obj, vars)
+        function [cons, stab_label]= cons_stab(obj, vars)
             %constraint to enforce stability
             n = size(vars.A, 1);
-%             stab = -ones(1, n)*(vars.A*diag(vars.y) + vars.B*vars.S);
-            stab = -(vars.A*diag(vars.y) + vars.B*vars.S)*ones(n, 1);
-            cons = (stab >= obj.delta);
-            stab_label = 'Stability';
+            e = size(obj.param.E, 2);
+            p = size(obj.param.C, 1);
+%             stab = vars.y' - ones(1, n)*(vars.A*diag(vars.y) + vars.B*vars.S);
+            X = diag(vars.y);
+            term_x = - (vars.A*X + vars.B*vars.S)*ones(n, 1)...
+                - obj.param.E*ones(e, 1);
+            
+            term_z = vars.gamma*ones(p, 1) - (obj.param.C*X + obj.param.D*vars.S)*ones(n, 1) ...
+                 - obj.param.F*ones(e, 1);
+            cons = ([term_x; term_z] >= obj.delta);
+            cons = [cons; vars.gamma >= 0];
+            stab_label = 'Peak-to-Peak';
         end
+        
         
         function cons = pos_cons_closed(obj, vars)
             %the closed-loop system should also be positive (Metzler)

@@ -30,7 +30,7 @@ ST.opts.solver='linprog';
 pall_true = reshape([sys.A, sys.B], [], 1);
 check_poly = ST.poly.d - ST.poly.C*pall_true;
 
-out = ST.stab();
+out = ST.run();
 if ~out.sol.problem
 % recover and evaluate
 sys_clp_true = sys.A + sys.B*out.K

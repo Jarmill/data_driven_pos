@@ -37,7 +37,8 @@ S = sdpvar(m, n);
 %basic constraints
 cons = [y >= delta; sum(y)==1];
 
-stabcon = -ones(1, n)*(sys.A*diag(y) + sys.B*S);
+% stabcon = -ones(1, n)*(sys.A*diag(y) + sys.B*S);
+stabcon = -(sys.A*diag(y) + sys.B*S)*ones(n, 1);
 poscon =  reshape((1-eye(n)).*(sys.A* diag(y) + sys.B*S), [], 1);
 cons = [cons; stabcon >= delta; poscon >= 0];
 
