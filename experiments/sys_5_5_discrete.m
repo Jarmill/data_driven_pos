@@ -1,8 +1,8 @@
 SOLVE = 1;
 SAMPLE = 0;
 PLOT = 0;
-n = 3;
-m=3;
+n = 5;
+m=5;
 
 rng(40, 'twister')
 
@@ -12,10 +12,11 @@ PS = possim(n, m);
 sys = PS.rand_sys(1.4);
 
 % T = 10;
-T = 15;
+% T = 15;
 % T = 20;
 % T = 30;
 % T = 40;
+T = 60;
 traj = PS.sim(T, sys);
 
 
@@ -60,25 +61,25 @@ end
 
 %% Plot results
 
-if PLOT
-    figure(1)
-    clf
-    hold on
-    for i = 1:Nsys
-        scatter3(traj_smp{i}.Xn(1, :), traj_smp{i}.Xn(2, :), traj_smp{i}.Xn(3, :), [], 'k', 'filled');
-    end
-    scatter3(x0(1), x0(2), x0(3), 300, 'b')
-    hold off
-    
-    xlim([0, 1.2])
-    ylim([0, 1.2])
-    zlim([0, 1.2])
-    
-    xlabel('x_1')
-    ylabel('x_2')
-    zlabel('x_3')
-    title(sprintf('Positive System Control (Nsys = %d)', Nsys), 'fontsize', 16)
-        
-end
+% if PLOT
+%     figure(1)
+%     clf
+%     hold on
+%     for i = 1:Nsys
+%         scatter3(traj_smp{i}.Xn(1, :), traj_smp{i}.Xn(2, :), traj_smp{i}.Xn(3, :), [], 'k', 'filled');
+%     end
+%     scatter3(x0(1), x0(2), x0(3), 300, 'b')
+%     hold off
+%     
+%     xlim([0, 1.2])
+%     ylim([0, 1.2])
+%     zlim([0, 1.2])
+%     
+%     xlabel('x_1')
+%     ylabel('x_2')
+%     zlabel('x_3')
+%     title(sprintf('Positive System Control (Nsys = %d)', Nsys), 'fontsize', 16)
+%         
+% end
 
 

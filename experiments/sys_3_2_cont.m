@@ -1,16 +1,15 @@
 SOLVE = 1;
-SAMPLE = 1;
-PLOT = 1;
+SAMPLE = 0;
+PLOT = 0;
 
 rng(30, 'twister')
-n = 3;
-m = 2;  
-% T = 20;
-T = 8;
+n = 3; m = 2;  T = 12; %works
 
-% n = 6;
-% m = 8;
-% T = 40;
+%other tests don't work. why?
+rng(60, 'twister')
+n = 5; m = 4; T = 90;
+
+
 PS = possim_cont(n, m);
 
 
@@ -18,7 +17,7 @@ sys = PS.rand_sys(1.4);
 
 
 % T = 50;
-traj = PS.sim(T, sys);
+traj = PS.sample_slope(T, sys);
 
 ST = posstab_cont(traj);
 
@@ -36,6 +35,8 @@ sblock = sys.A*diag(out.y) + sys.B*out.S
 -ones(1, n)*sblock
 %why does this have an off-diagonal element
 eig_clp = eig(sys_clp_true)'
+else
+    disp('infeasible')
 
 end
 end

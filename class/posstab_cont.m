@@ -30,7 +30,7 @@ classdef posstab_cont < posstab
             
             %only touch the off-diagonal elements of A
             mask_offdiag = logical(reshape(1-eye(n), [], 1));            
-            jpos = [find(mask_offdiag); (n^2 + (1:(n*m)))];
+            jpos = [find(mask_offdiag); (n^2 + (1:(n*m)))'];
             
             ncon = sum(mask_offdiag);            
             ipos = (1:(ncon + (n*m)));
@@ -43,8 +43,8 @@ classdef posstab_cont < posstab
         function cons = cons_stab(obj, vars)
             %constraint to enforce stability
             n = size(vars.A, 1);
-            stab = -ones(1, n)*(vars.A*diag(vars.y) + vars.B*vars.S);
-            
+%             stab = -ones(1, n)*(vars.A*diag(vars.y) + vars.B*vars.S);
+            stab = -(vars.A*diag(vars.y) + vars.B*vars.S)*ones(n, 1);
             cons = (stab >= obj.delta);
         end
         
