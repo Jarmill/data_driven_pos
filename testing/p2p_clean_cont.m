@@ -3,12 +3,18 @@ rng(30, 'twister')
     % z    = C x + D u + F w
     %peak-to-peak w->z
     
+    
+NOM = 1; %use the nominal controller
+    
 n = 3;
 m = 2; %feasible
 
 sys = struct('A', [-0.562888446377643,0.304206397381707,0.656593915356461;0.062043810844475,-1.344996926420559,0.254522592715944;0.113187181708781,0.132354437133599,0.019971221719390],...
              'B', [0.182453070500558,0.076396428548559;0.472833184316772,0.245344456124525;0.065942821511921,0.940264967809949]);
 
+%a nominal controller that makes A+BK stable
+K_nom = [0.086850860753820,-0.475392839969307,6.013859422926600;0.354285451225413,0.798178668811147,-8.034350355031790];         
+         
 %this is unstable at the current settings
 es = eig(sys.A);
 
@@ -54,6 +60,11 @@ poscon_x =  reshape((1-eye(n)).*Abar, [], 1);
 poscon_z = reshape(Cbar, [], 1);
 % poscon_z = 0;
 cons = [cons; [term_x; term_z] >= delta; [poscon_x; poscon_z] >= 0];
+
+if NOM
+    nomcon = (S == K_nom * X);
+    cons = [cons; nomcon];
+end
 
 %% solve program
 opts = sdpsettings;
