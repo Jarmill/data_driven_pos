@@ -100,9 +100,10 @@ classdef posstab_f
             %systems given the values in vars
             
             n = length(vars.y);
-            Gd_stab = [kron(-vars.y', eye(n)), kron((vars.S*ones(n, 1))', eye(n))];
+            %stable system
+            Gd_stab = [kron(vars.y', eye(n)), kron((vars.S*ones(n, 1))', eye(n))];
             
-%             M = metzler_indexer(n);
+            %positive system
             Gd_pos = -[kron(diag(vars.y), eye(n)), kron(vars.S', eye(n))];
                 
 %             Gc_pos = Gc_pos_all(M, :);
