@@ -1,6 +1,6 @@
 SOLVE = 1;
-SAMPLE = 0;
-PLOT = 0;
+SAMPLE = 1;
+PLOT = 1;
 n = 3;
 m=3;
 
@@ -21,7 +21,7 @@ traj = PS.sim(T, sys);
 
 %% Solve system
 if SOLVE
-ST = posstab(traj);
+ST = posstab_f(traj);
 ST.opts.solver='linprog';
 
 % ST.nontrivial = 0;
@@ -42,7 +42,7 @@ end
 %% Sample trajectories
 
 if SAMPLE
-    Nsys = 30;
+    Nsys = 100;
     x0 = ones(n, 1);
     
     sys_vec = cprnd(Nsys, ST.poly.C, ST.poly.d);
@@ -51,10 +51,11 @@ if SAMPLE
     PS.sampler.u = @(x) out.K*x;
     
     traj_smp = cell(Nsys, 1);
+    Tsim = 50;
     for i = 1:Nsys
         sys_mat = reshape(sys_vec(i, :), n, n+m);
         sys_curr = struct('A', sys_mat(:, 1:n), 'B', sys_mat(:, (n+1):end));
-        traj_smp{i} = PS.sim(T, sys_curr, x0);
+        traj_smp{i} = PS.sim(Tsim, sys_curr, x0);
     end
 end
 
@@ -65,9 +66,9 @@ if PLOT
     clf
     hold on
     for i = 1:Nsys
-        scatter3(traj_smp{i}.Xn(1, :), traj_smp{i}.Xn(2, :), traj_smp{i}.Xn(3, :), [], 'k', 'filled');
+        scatter3(traj_smp{i}.Xn(1, :), traj_smp{i}.Xn(2, :), traj_smp{i}.Xn(3, :), [], [0.9153    0.2816    0.2878], 'filled');
     end
-    scatter3(x0(1), x0(2), x0(3), 300, 'b')
+    scatter3(x0(1), x0(2), x0(3), 300, 'k')
     hold off
     
     xlim([0, 1.2])
