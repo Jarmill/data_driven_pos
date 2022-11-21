@@ -6,6 +6,7 @@ rng(40, 'twister')
 n = 7;
 m = 7;
 T = 100;
+
 PS = possim(n, m);
 
 

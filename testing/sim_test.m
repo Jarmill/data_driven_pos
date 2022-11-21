@@ -13,7 +13,7 @@ traj = PS.sim(T, sys);
 
 ST = posstab(traj);
 
-out = ST.stab();
+out = ST.run();
 
 %% recover and evaluate
 if out.sol.problem

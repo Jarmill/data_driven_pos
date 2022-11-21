@@ -15,7 +15,7 @@ sys = PS.rand_sys(1.4);
 % T = 50;
 traj = PS.sim(T, sys);
 
-ST = posstab_cont(traj);
+ST = posstab_cont_f(traj);
 
 pall_true = reshape([sys.A, sys.B], [], 1);
 check_poly = ST.poly.d - ST.poly.C*pall_true;
