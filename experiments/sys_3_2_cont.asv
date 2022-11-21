@@ -55,7 +55,7 @@ if SAMPLE&&~out.sol.problem
     PS.sampler.u = @(x) out.K*x;
     
     traj_smp = cell(Nsys, 1);
-    Tsim = 20;
+    Tsim = 10;
     for i = 1:Nsys
         sys_mat = reshape(sys_vec(i, :), n, n+m);
         sys_curr = struct('A', sys_mat(:, 1:n), 'B', sys_mat(:, (n+1):end));
@@ -83,9 +83,9 @@ if PLOT&&~out.sol.problem
     ylim([0, 1.2])
     zlim([0, 1.2])
     
-    xlabel('$x_1$', 'interpreter', 'latex')
-    ylabel('$x_2$', 'interpreter', 'latex')
-    zlabel('$x_3$', 'interpreter', 'latex')
+    xlabel('$x_1$', ')
+    ylabel('x_2')
+    zlabel('x_3')
     title(sprintf('Positive System Control (Nsys = %d)', Nsys), 'fontsize', 16)
         
 end

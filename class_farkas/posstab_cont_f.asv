@@ -32,21 +32,13 @@ classdef posstab_cont_f < posstab_f
             
                 %only touch the off-diagonal elements of A
                 mask_offdiag = logical(reshape(1-eye(n), [], 1));            
-%                 jpos = [find(mask_offdiag); (n^2 + (1:(n*m)))'];
+                jpos = [find(mask_offdiag); (n^2 + (1:(n*m)))'];
 
-                ncon = n^2 - n;
-                jpos = find(mask_offdiag)';
-                ipos = 1:ncon;
-                vpos = -ones(1, ncon);
                 ncon = sum(mask_offdiag);            
-%                 ipos = (1:(ncon + (n*m)));
-%                 vpos = -ones(1, ncon+(n*m));
+                ipos = (1:(ncon + (n*m)));
+                vpos = -ones(1, ncon+(n*m));
                 
-                if data_options.pos_B
-                    ipos = [ipos,  (ncon + (1:(n*m)))];
-                    jpos = [jpos, (n^2 + (1:n*m))];
-                    vpos = [vpos, -ones(1, n*m)];
-                end
+                if 
 
                 Cpos = sparse(ipos, jpos, vpos, ncon+(n*m), n*(n+m));
                 dpos = sparse([], [], [], ncon+(n*m), 1); 
