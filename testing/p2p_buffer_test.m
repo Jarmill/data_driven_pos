@@ -1,4 +1,5 @@
 %Example 1 of https://ieeexplore.ieee.org/document/8618689
+% A = diag(-[1,2,3,4]);
 A = diag(-[1,2,3,4]);
 B = [-1 1 0 0 0 0; 0 -1 -1 1 0 0; 1 0 1 -1 -1 1; 0 0 0 0 1 -1];
 
@@ -28,7 +29,7 @@ D = [zeros(n, m); eye(m)];
 % C = rand(q, n);
 % D = zeros(q, m);
 % D = [zeros(n, m); eye(m)*0.5];
-E = eye(p);
+E = eye(n, p);
 F = zeros(q, p);
 
 %% form constraints
