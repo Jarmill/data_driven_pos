@@ -107,7 +107,7 @@ classdef possim_cont < possim
 
         %% generate sample plants inside the consistency set
         
-        function sys_pos = rand_sys(obj, A_scale)
+        function sys_pos = rand_sys(obj, A_scale, bneg)
 
             %randomly generate the positive system            
             %must be a Metzler matrix                        
@@ -116,8 +116,19 @@ classdef possim_cont < possim
                 A_scale = obj.A_scale;
             end
             
+            
+            if nargin < 3
+                bneg = 0;
+            end
+            
+            
             A = abs(randn(obj.n, obj.n));
-            B = abs(randn(obj.n, obj.m)); %B should be nonnegative
+            
+            B = randn(obj.n, obj.m);
+            if ~bneg
+                B = abs(B); %B should be nonnegative
+            end
+            
             
             s = 2*sign(rand(obj.n, 1) - obj.p_pos)-1;
             %Metzler matrix: off-diagonal signs are allowed to be

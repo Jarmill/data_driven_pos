@@ -13,7 +13,9 @@ m = 2; %feasible
 % m = 5;
 PS = possim_cont(n, m);
 
-sys = PS.rand_sys(1.4);
+% sys = PS.rand_sys(1.4);
+% sys = struct('A', [-0.2, 0.4, 0.8; 0.4, -0.6, 0.2; 0, 0.8, -0.9],...
+%     'B', [0.4, 0.5; 0.2, -0.8; -1, 2]);
 % sys = PS.rand_sys(0.5);
 
 %this is unstable at the current settings

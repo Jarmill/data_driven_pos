@@ -5,10 +5,13 @@ classdef posstab_cont_f < posstab_f
     
     
     methods
-        function obj = posstab_cont_f(traj)
+        function obj = posstab_cont_f(traj, dopts)
             %POSSTAB_CONT Construct an instance of this class
             %   Detailed explanation goes here
-            obj@posstab_f(traj);
+            if nargin < 1
+                dopts = data_opts;
+            end
+            obj@posstab_f(traj, dopts);
         end
         
         function [Cpos, dpos] = pos_cons(obj, traj, data_options)
