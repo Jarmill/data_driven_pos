@@ -58,7 +58,7 @@ classdef posstab_f
             vars =  obj.make_vars();
             
             %valid and normalized (inverse) lyapunov weights
-            cons_vars = [vars.y >= obj.delta; sum(vars.y)==1];
+            cons_vars = obj.var_cons(vars);
             
 %             pall = reshape([vars.A, vars.B], [], 1);
 %             cons_data = (obj.poly.d - obj.poly.C*pall) >= 0;
@@ -70,11 +70,16 @@ classdef posstab_f
             
 %             cons_pos_closed = obj.pos_cons_closed(vars);
             
-            cons = [cons_vars:'Lyap Nonneg'; cons_contain];
+            cons = [cons_vars; cons_contain];
         end       
         
         function objective = make_objective(obj, vars)
             objective = 0;
+        end
+        
+        function cons_vars = var_cons(obj, vars)
+            %constraints on the variables in the program
+            cons_vars = [vars.y >= obj.delta; sum(vars.y)==1]:'Lyap Nonneg';            
         end
         
         
@@ -126,6 +131,8 @@ classdef posstab_f
            
            vars = struct('y', y, 'S', S);                   
         end
+        
+        
         
     
         
@@ -194,6 +201,7 @@ classdef posstab_f
                 ipos = [];
                 jpos = [];
                 vpos = [];
+                dpos = [];
             end
             
 

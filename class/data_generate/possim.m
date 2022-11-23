@@ -100,7 +100,7 @@ classdef possim
 
         %% generate sample plants inside the consistency set
         
-        function sys_pos = rand_sys(obj, A_scale)
+        function sys_pos = rand_sys(obj, A_scale, bneg)
 
             %randomly generate the positive system            
             %all entries must be nonnegative
@@ -111,8 +111,15 @@ classdef possim
                 A_scale = obj.A_scale;
             end
             
+            if nargin < 3
+                bneg = 0;
+            end
+            
             A = abs(randn(obj.n, obj.n));
-            B = abs(randn(obj.n, obj.m)); %B should be nonnegative
+            B = randn(obj.n, obj.m);
+            if ~bneg
+                B = abs(B); %B should be nonnegative if requested
+            end
             %package the output
 
             sys_pos = struct;
