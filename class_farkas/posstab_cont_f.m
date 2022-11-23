@@ -8,7 +8,7 @@ classdef posstab_cont_f < posstab_f
         function obj = posstab_cont_f(traj, dopts)
             %POSSTAB_CONT Construct an instance of this class
             %   Detailed explanation goes here
-            if nargin < 1
+            if nargin < 2
                 dopts = data_opts;
             end
             obj@posstab_f(traj, dopts);
@@ -49,10 +49,11 @@ classdef posstab_cont_f < posstab_f
                     ipos = [ipos,  (ncon + (1:(n*m)))];
                     jpos = [jpos, (n^2 + (1:n*m))];
                     vpos = [vpos, -ones(1, n*m)];
+                    ncon = ncon + n*m;
                 end
 
-                Cpos = sparse(ipos, jpos, vpos, ncon+(n*m), n*(n+m));
-                dpos = sparse([], [], [], ncon+(n*m), 1); 
+                Cpos = sparse(ipos, jpos, vpos, ncon, n*(n+m));
+                dpos = sparse([], [], [], ncon, 1); 
             else
                 Cpos = [];
                 dpos = [];

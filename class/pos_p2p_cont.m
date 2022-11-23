@@ -36,8 +36,8 @@ classdef pos_p2p_cont < pos_p2p
             
             ncon = sum(mask_offdiag);            
             ipos = (1:(ncon + (n*m)));
-            vpos = -ones(1, ncon+(n*m));
-            
+%             vpos = -ones(1, ncon+(n*m));
+            vpos = -zeros(1, ncon+(n*m));
             Cpos = sparse(ipos, jpos, vpos, ncon+(n*m), n*(n+m));
             dpos = sparse([], [], [], ncon+(n*m), 1);     
         end

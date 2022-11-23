@@ -3,7 +3,7 @@ SAMPLE = 1;
 PLOT = 1;
 
 rng(30, 'twister')
-n = 3; m = 2;  T = 12; %works
+n = 3; m = 2;  T = 5; %works
 
 % %other tests don't work. why?
 % rng(60, 'twister')
@@ -13,7 +13,13 @@ n = 3; m = 2;  T = 12; %works
 PS = possim_cont(n, m);
 
 
-sys = PS.rand_sys(1.4);
+% sys = PS.rand_sys(1.4);
+
+A = [-0.55, 0.3, 0.65; 0.06, -1.35, 0.25; 0.1, 0.15, 0.4];
+
+B = [0.18, 0.08; 0.47, 0.25; 0.07, 0.95];
+
+sys = struct('A', A, 'B', B);
 
 
 % T = 50;
@@ -32,7 +38,7 @@ out = ST.run();
 if ~out.sol.problem
 sys_clp_true = sys.A + sys.B*out.K;
 sblock = sys.A*diag(out.y) + sys.B*out.S
--ones(1, n)*sblock
+% -ones(1, n)*sblock
 %why does this have an off-diagonal element
 eig_clp = eig(sys_clp_true)'
 else
@@ -79,9 +85,7 @@ if PLOT&&~out.sol.problem
     scatter3(x0(1), x0(2), x0(3), 300, 'k')
     hold off
     
-    xlim([0, 1.2])
-    ylim([0, 1.2])
-    zlim([0, 1.2])
+
     
     xlabel('$x_1$', 'interpreter', 'latex')
     ylabel('$x_2$', 'interpreter', 'latex')

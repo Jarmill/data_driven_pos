@@ -56,6 +56,7 @@ param.F = zeros(q, p);
 ST_f = posstab_cont_f(traj, dopts);
 % 
 PT_f = pos_p2p_cont_f(traj, param, dopts);
+% PT_f = pos_p2p_cont(traj, param);
 
 
 poly_check = PT_f.poly.d - PT_f.poly.C*pall;

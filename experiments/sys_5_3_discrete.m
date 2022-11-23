@@ -2,7 +2,8 @@ SOLVE = 1;
 SAMPLE = 0;
 PLOT = 0;
 n = 5;
-m=5;
+% m=5;
+m=3;
 
 rng(40, 'twister')
 
@@ -16,14 +17,16 @@ sys = PS.rand_sys(1.4);
 % T = 20;
 % T = 30;
 % T = 40;
+% T = 50;
 T = 60;
 traj = PS.sim(T, sys);
 
 
 %% Solve system
 if SOLVE
+% ST = posstab_f(traj);
 ST = posstab(traj);
-ST.opts.solver='linprog';
+% ST.opts.solver='linprog';
 
 % ST.nontrivial = 0;
 
