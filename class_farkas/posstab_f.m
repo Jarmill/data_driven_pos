@@ -12,9 +12,11 @@ classdef posstab_f
         
         delta = 1e-3; %tolerance for a strict inequality to be positive       
         
-        opts = sdpsettings('solver', 'mosek','robust.lplp', 'duality');
+        opts = sdpsettings('solver', 'mosek');
 
         poly;
+        
+        dopts = [];
 
 
     end
@@ -29,6 +31,7 @@ classdef posstab_f
                 data_options = data_opts;
             end
             
+            obj.dopts = data_options;
             [C, d, F_old] = obj.data_cons(traj, data_options);
             obj.poly = struct('C', C, 'd', d, 'F_old', F_old);
         end
@@ -68,9 +71,11 @@ classdef posstab_f
             [cons_contain, Z]= obj.ext_farkas(poly_s, obj.poly);
             vars.Z = Z;
             
+            cons_K = obj.controller_cons(vars, obj.dopts);
+            
 %             cons_pos_closed = obj.pos_cons_closed(vars);
             
-            cons = [cons_vars; cons_contain];
+            cons = [cons_vars; cons_contain; cons_K];
         end       
         
         function objective = make_objective(obj, vars)
@@ -80,6 +85,30 @@ classdef posstab_f
         function cons_vars = var_cons(obj, vars)
             %constraints on the variables in the program
             cons_vars = [vars.y >= obj.delta; sum(vars.y)==1]:'Lyap Nonneg';            
+        end
+        
+        function cons_K = controller_cons(obj, vars, dopts)
+            %constraints on the sign of the controller
+            %mask array of dopts.gez (>=0) or dopts.lez (<=0).
+            if nargin < 3
+                dopts = data_opts;
+            end
+            
+            if isempty(dopts.gez)           
+                cons_K_pos = [];
+            else
+                cons_K_pos = ((dopts.gez .* vars.S) >= 0):'K Sign Pos';
+            end
+            
+            if isempty(dopts.lez)           
+                cons_K_neg = [];
+            else
+                cons_K_neg = ((dopts.lez .* vars.S) <= 0):'K Sign Pos';
+            end
+            
+            
+            cons_K = [cons_K_pos; cons_K_neg];
+            
         end
         
         

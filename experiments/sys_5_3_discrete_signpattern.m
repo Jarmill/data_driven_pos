@@ -25,7 +25,17 @@ load('traj/sys_5_3_discrete.mat')
 
 %% Solve system
 if SOLVE
-ST = posstab_f(traj);
+    
+    dopts = data_opts;
+    z_pat = [1, 1; 1 2; 1 3; 2 1; 3 1; 1 4; 2 2; 3 2; 3 3; 2 4];
+    
+    gez_pat = [z_pat; 2 5];
+    lez_pat = [z_pat; 1 5];
+    
+    dopts.gez = sparse(gez_pat(:, 1), gez_pat(:, 2), ones(size(gez_pat, 1), 1), m, n);
+    dopts.lez = sparse(lez_pat(:, 1), lez_pat(:, 2), ones(size(lez_pat, 1), 1), m, n);
+    
+ST = posstab_f(traj, dopts);
 % ST = posstab(traj);
 % ST.opts.solver='linprog';
 
@@ -37,8 +47,9 @@ check_poly = ST.poly.d - ST.poly.C*pall_true;
 out = ST.run();
 if ~out.sol.problem
 % recover and evaluate
-sys_clp_true = sys.A + sys.B*out.K
+sys_clp_true = sys.A + sys.B*out.K;
 eig_clp = abs(eig(sys_clp_true))'
+K_rec = out.K
 else
     disp('infeasible');
 end
