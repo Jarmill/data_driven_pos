@@ -1,47 +1,79 @@
+rng(40, 'twister')
 
-SOLVE = 1;
-SAMPLE = 0;
-PLOT = 0;
+n= 3;
+m =2;
 
-%system
-rng(30, 'twister')
-n = 3; m = 2;  T = 12; %works
+%when pos_A = 1
+% T = 20;  % p2p of 6.4539
+%T = 30; % p2p of 5.0182
+T = 50;  % p2p of 4.4967
+% T = 80;  % p2p of  4.0619
+% T = 110; % p2p of  4.0252
+% T = 120; % p2p of  4.0028
+% T = 140;   % p2p of  3.9825
 
+%when pos_A = 0
+% T = 20;  % p2p of  6.4823
+% T = 30;  % p2p of 5.0719
+% T = 50;  % p2p of  4.5292
+% T = 80;  % p2p of  4.0659
+% T = 110; % p2p of  4.0291
+% T = 120; % p2p of  4.0029
+% T = 140;   % p2p of   3.9825
+
+% n = 7;
+% m = 7;
+% T = 100;
 
 PS = possim_cont(n, m);
 
 
-sys = PS.rand_sys(1.4);
+% sys = PS.rand_sys(1.2, 1);
+%this system remains infeasible for p2p, but can be stabilized.
+%I will need to find a system to use for continuous-time p2p testing.
+sys = struct('A', [-0.2, 0.2, 0.2; 0.4, -0.7, 0.2; 0, 0.8, -3],...
+    'B', [-0.4, 0.5; 0.2, -0.8; -1, 2]);
 
+dopts = data_opts;
+dopts.nontrivial = 1;
+dopts.pos_A = 1;
+dopts.pos_B = 0;
 
-%matrices
-e = 1;
-param = struct;
-param.C = [eye(n); zeros(m, n)];
-param.D = [zeros(n, m); eye(m)*0.5];
-param.E = eye(n, e);
-param.F = zeros(n+m, e);
+pall = reshape([sys.A, sys.B],[],1);
 
 traj = PS.sample_slope(T, sys);
 
-ST = pos_p2p_cont(traj, param);
+%choose the parameters
+p = 2; %number of external inputs
+q = n+m;
+param = struct;
+param.C = [eye(n);zeros(m, n)];
+param.D = [zeros(n, m); eye(m)];
+param.E = eye(n, p);
+param.F = zeros(q, p);
 
-pall_true = reshape([sys.A, sys.B], [], 1);
-check_poly = ST.poly.d - ST.poly.C*pall_true;
 
-%% solve
-if SOLVE
-out = ST.run();
+ST_f = posstab_cont_f(traj, dopts);
+% 
+PT_f = pos_p2p_cont_f(traj, param, dopts);
+% PT_f = pos_p2p_cont(traj, param);
 
+
+poly_check = PT_f.poly.d - PT_f.poly.C*pall;
+%% run
+out_f_stab = ST_f.run();
+out_f = PT_f.run();
+
+
+% 
 %% recover and evaluate
-if ~out.sol.problem
-sys_clp_true = sys.A + sys.B*out.K;
-sblock = sys.A*diag(out.y) + sys.B*out.S
--ones(1, n)*sblock
-%why does this have an off-diagonal element
-eig_clp = eig(sys_clp_true)'
-else
+if out_f.sol.problem
     disp('infeasible')
+else
+    sys_clp_true_f = sys.A + sys.B*out_f.K
+    eig_clp_f = eig(sys_clp_true_f)'
+    out_f.gamma
+    
+    out_f.K
+end
 
-end
-end

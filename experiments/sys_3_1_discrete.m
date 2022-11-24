@@ -2,7 +2,7 @@ SOLVE = 1;
 SAMPLE = 1;
 PLOT = 1;
 n = 3;
-m=3;
+m=1;
 
 rng(40, 'twister')
 
@@ -11,8 +11,8 @@ PS = possim(n, m);
 
 sys = PS.rand_sys(1.4);
 
-% T = 10;
-T = 15;
+T = 12;
+% T = 15;
 % T = 20;
 % T = 30;
 % T = 40;
