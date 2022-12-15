@@ -92,4 +92,36 @@ if PLOT&&~out.sol.problem
     zlabel('$x_3$', 'interpreter', 'latex')
     title(sprintf('Positive System Control (Nsys = %d)', Nsys), 'fontsize', 16)
         
+
+
+%% analyze the Lyapunov function
+%the CLF we get is max(x./y), not y'x. 
+figure(5)
+clf
+vlin = cell(length(traj_smp), 1);
+vmax = cell(length(traj_smp), 1);
+
+for i = 1:length(traj_smp)
+    tc = traj_smp{i};
+    vlin{i} = out.y'*tc.Xn;
+    vmax{i} = max(tc.Xn./out.y, [], 1);
+end
+
+subplot(1, 2, 1)
+hold on
+for i = 1:length(traj_smp)
+    plot(traj_smp{i}.t, vlin{i});
+end
+title('Linear Lyap', 'Fontsize', 16)
+xlabel('t')
+ylabel('V(x)')
+
+subplot(1, 2, 2)
+hold on
+for i = 1:length(traj_smp)
+    plot(traj_smp{i}.t, vmax{i});
+end
+title('Max Lyap', 'Fontsize', 16)
+xlabel('t')
+ylabel('V(x)')
 end
