@@ -124,4 +124,14 @@ end
 title('Max Lyap', 'Fontsize', 16)
 xlabel('t')
 ylabel('V(x)')
+
+
+figure(6)
+hold on
+for i = 1:length(traj_smp)
+    plot(traj_smp{i}.t, vmax{i});
+end
+title('Lyapunov Function along Trajectories', 'Fontsize', 16)
+xlabel('$t$', 'interpreter', 'Latex')
+ylabel('max$(x./v)$', 'interpreter', 'Latex')
 end
