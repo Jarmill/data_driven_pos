@@ -70,7 +70,7 @@ classdef possim_switch
                 
                 %propagation 
                 %this is where the noise enters (process ?)
-                xnext = sys.A{curr}*xcurr + sys.B{scurr}*ucurr + wcurr;
+                xnext = sys.A{scurr}*xcurr + sys.B{scurr}*ucurr + wcurr;
 %                 for k = 1:obj.L
 %                     xnext = xnext + sys.A{k}*xcurr*thcurr(k);
 %                 end                
@@ -99,6 +99,8 @@ classdef possim_switch
             out.ground_truth = ground_truth;
             out.n = obj.n;
             out.m = obj.m;
+            out.S = S;
+            out.Nsys = obj.Nsys;
 %             out.L = obj.L;
         end
         

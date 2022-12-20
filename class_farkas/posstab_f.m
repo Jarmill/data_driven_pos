@@ -1,6 +1,6 @@
 classdef posstab_f
     %POSSTAB_F Data-driven stabilization of a discrete-time linear positive 
-    %system using full-state-feedback and a common linear copositive 
+    %system using full-state-feedback and a common dual-linear copositive 
     %control lyapunov function
     %
     %Utilizes the Extended Farkas Lemma, does not require the Yalmip robust

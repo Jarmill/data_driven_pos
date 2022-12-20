@@ -101,11 +101,12 @@ classdef possim_switch_cont < possim_switch
             out.ground_truth = ground_truth;
             out.n = obj.n;
             out.m = obj.m;
+            out.Nsys = obj.Nsys;
 %             out.L = obj.L;
         end
         
         
-        function traj = sim_cont(obj, sys, Tsim, x0)
+        function traj = sim_cont(obj, sys, K, Tsim, x0)
             %SIM_CONT simulate a trajectory in continuous-time
 
             if nargin < 2
@@ -120,9 +121,35 @@ classdef possim_switch_cont < possim_switch
                 x0 = ones(obj.n, 1);
             end
 
-            [tcurr, xcurr] = ode45(@(t, x) (sys.A + sys.B*out.K)*x, [0, Tsim], x0);
+            T = [];
+            X = [];
+            U = [];
+            S = [];
 
-            traj = struct('t', tcurr, 'Xn', xcurr');
+            xprev = x0;
+            tmax_curr = exprnd(mu);          
+            t_all = 0;
+            switch_times = 0;
+            while t_all < Tsim
+                tmax_curr = min(t_all + tmax_curr, T);
+                scurr = obj.sampler.sys(xprev);
+
+                Kcurr = K{scurr};
+
+                Acl = sys.A{scurr} + sys.B{scurr}*Kcurr;
+
+                [tcurr, xcurr] = ode45(@(t, x) Acl*x, [0, tmax_curr], xprev);                    
+                X = [X, xcurr'];
+                U = [U, Kcurr*xcurr'];
+                
+                xprev = xcurr(end, :)';
+                t_all = t_all + tmax_curr;
+                T = [T, tcurr];
+                switch_times = [switch_times; tmax_curr];
+                S = [S; scurr];
+            end
+            
+            traj = struct('t', T, 'X', X, 'U', U, 'switch_times', switch_times, 'S', S);
 
         end
 
