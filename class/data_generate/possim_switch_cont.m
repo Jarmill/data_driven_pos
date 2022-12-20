@@ -1,5 +1,5 @@
-classdef possim_cont < possim
-    %possim_cont Simulation of a continuous-time positive system    
+classdef possim_switch_cont < possim_switch
+    %possim_switch_cont Simulation of a switched continuous-time positive system    
     
     properties        
         Rmax = 5; %randomly sample in cube [0, Rmax]^n
@@ -8,7 +8,7 @@ classdef possim_cont < possim
 
     methods
 
-        function obj = possim_cont(n, m, epsilon)
+        function obj = possim_switch_cont(n, m, epsilon, Nsys)
             %UNTITLED Construct an instance of this class
             %   Detailed explanation goes here
 
@@ -23,24 +23,24 @@ classdef possim_cont < possim
                 m=2 ;
             end
             
-            if nargin < 3
+            if nargin <=3
                 epsilon = 0.1;
             end
+                
+            if nargin <=4
+                Nsys = 1;
+            end
 
-                obj@possim(n, m, epsilon)
-%             end
-            
-            
+
+                obj@possim_switch(n, m, epsilon, Nsys)                      
                 
 
             obj.sampler.x=@() rand(obj.n, 1)*obj.Rmax;
-%                                  'w', @() normalize(randn(obj.n,1), 1, 'norm', 2));
 
-            %             obj.Property1 = inputArg1 + inputArg2;
         end
 
         function out = sample_slope(obj, T, sys)
-            %randomly sample points in [0, Rmax] to obtain data
+            %randomly sample x points in [0, Rmax] to obtain data
             out = struct;
 
             if nargin < 2
@@ -56,18 +56,21 @@ classdef possim_cont < possim
             Xdelta = zeros(obj.n, T);
             U = zeros(obj.m, T);
             W_true = zeros(obj.n, T);
+            S = zeros(1, T);
             %main simulation loop
 %             xcurr = x0;
             for i = 1:T
                 %inputs
                 
                 wcurr = obj.sampler.w()*obj.epsilon;
-                ucurr = obj.sampler.u();
                 xcurr = obj.sampler.x();
+                scurr = obj.sampler.sys(xcurr);
+                ucurr = obj.sampler.u(xcurr, scurr);
+                
                 
                 %propagation 
                 %this is where the noise enters (process ?)
-                xdelta = sys.A*xcurr + sys.B*ucurr + wcurr;
+                xdelta = sys.A{scurr}*xcurr + sys.B{scurr}*ucurr + wcurr;
 %                 for k = 1:obj.L
 %                     xnext = xnext + sys.A{k}*xcurr*thcurr(k);
 %                 end                
@@ -77,6 +80,7 @@ classdef possim_cont < possim
                 Xdelta(:, i) = xdelta;
                 U(:, i) = ucurr;
                 W_true(:, i) = wcurr;
+                S(1, i) = scurr;
 %                 Th(:, i) = thcurr;
 %                 xcurr = xnext;
             end
@@ -85,6 +89,7 @@ classdef possim_cont < possim
             ground_truth = struct;
             ground_truth.A = sys.A;
             ground_truth.B = sys.B;
+            ground_truth.S = S;
             ground_truth.W = W_true;
 
             %package up the output
@@ -138,20 +143,34 @@ classdef possim_cont < possim
             end
             
             
-            A = abs(randn(obj.n, obj.n));
-            
-            B = randn(obj.n, obj.m);
-            if ~bneg
-                B = abs(B); %B should be nonnegative
+            sys_pos = struct;
+            sys_pos.A = cell(obj.Nsys, 1);
+            sys_pos.B = cell(obj.Nsys, 1);
+
+            for s = 1:obj.Nsys
+                
+                %State matrix A
+                A = abs(randn(obj.n, obj.n));
+
+                ssign = 2*sign(rand(obj.n, 1) - obj.p_pos)-1;   
+                %Metzler matrix: off-diagonal signs are allowed to be
+                %nonnegative
+                for i= 1:obj.n                
+                    A(i, i) = ssign(i)*A(i,i);
+                end
+                
+                %input matrix B
+                B = randn(obj.n, obj.m);
+                if ~bneg
+                    B = abs(B); %B should be nonnegative if requested
+                end
+                %package the output
+    
+                
+                sys_pos.A{s} = A/norm(A)*A_scale;
+                sys_pos.B{s} = B/norm(B);
             end
             
-            
-            s = 2*sign(rand(obj.n, 1) - obj.p_pos)-1;
-            %Metzler matrix: off-diagonal signs are allowed to be
-            %nonnegative
-            for i= 1:obj.n                
-                A(i, i) = s(i)*A(i,i);
-            end
             
             %package the output
 

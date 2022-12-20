@@ -1,9 +1,10 @@
-classdef possim
-    %possim Simulation of a discrete-time positive system    
+classdef possim_switch
+    %possim_switch Simulation of a switched discrete-time positive system    
     
     properties
         n = 3;      %number of states
         m = 2;      %number of inputs
+        Nsys = 1;
         
         epsilon = 0.1;
 
@@ -14,8 +15,8 @@ classdef possim
 
     methods
 
-        function obj = possim(n, m, epsilon)
-            %POSSIM create the data simulator
+        function obj = possim_switch(n, m, epsilon, Nsys)
+            %POSSIM_SWITCH create the data simulator
             %   Detailed explanation goes here
 
             if nargin >= 2
@@ -23,21 +24,23 @@ classdef possim
                 obj.m = m;
             end
             
-            if nargin ==3
+            if nargin >=3
                 obj.epsilon = epsilon;
             end
                 
+            if nargin ==4
+                obj.Nsys = Nsys;
+            end
 
-            obj.sampler = struct('u', @(x) 2*rand(obj.m, 1)-1, ...
-                                 'w', @() 2*rand(obj.n, 1)-1);
-%                                  'w', @() normalize(randn(obj.n,1), 1, 'norm', 2));
 
-            %             obj.Property1 = inputArg1 + inputArg2;
+            obj.sampler = struct('u', @(x, s) 2*rand(obj.m, 1)-1, ...
+                                 'w', @() 2*rand(obj.n, 1)-1, ...
+                                 'sys', @(x) randi(obj.Nsys));
         end
 
         function out = sim(obj, T, sys, x0)
-            %simulate a discrete-time positive system trajectory with Linf 
-            %bounded noise
+            %simulate a switched discrete-time positive system trajectory 
+            % with Linf bounded noise
             out = struct;
 
             if nargin < 2
@@ -48,25 +51,26 @@ classdef possim
                 sys = obj.rand_sys();
             end
             if nargin < 4
-                x0 = ones(obj.n, 1);
-%                 x0(1) = 1;
+                x0 = ones(obj.n, 1);                
             end           
 
             
-            X = [x0, zeros(obj.n, T)];
-            U = zeros(obj.m, T);
-            W_true = zeros(obj.n, T);
+            X = [x0, zeros(obj.n, T)];      %state
+            U = zeros(obj.m, T);            %input
+            W_true = zeros(obj.n, T);       %noise term
+            S = zeros(1, T);                %switching subsystem
             %main simulation loop
             xcurr = x0;
             for i = 1:T
                 %inputs
                 
                 wcurr = obj.sampler.w()*obj.epsilon;
-                ucurr = obj.sampler.u(xcurr);
+                scurr = obj.sampler.sys(xcurr);
+                ucurr = obj.sampler.u(xcurr, scurr);                
                 
                 %propagation 
                 %this is where the noise enters (process ?)
-                xnext = sys.A*xcurr + sys.B*ucurr + wcurr;
+                xnext = sys.A{curr}*xcurr + sys.B{scurr}*ucurr + wcurr;
 %                 for k = 1:obj.L
 %                     xnext = xnext + sys.A{k}*xcurr*thcurr(k);
 %                 end                
@@ -75,6 +79,7 @@ classdef possim
                 X(:, i+1) = xnext;
                 U(:, i) = ucurr;
                 W_true(:, i) = wcurr;
+                S(1, i) = scurr;
 %                 Th(:, i) = thcurr;
                 xcurr = xnext;
             end
@@ -114,17 +119,24 @@ classdef possim
             if nargin < 3
                 bneg = 0;
             end
-            
-            A = abs(randn(obj.n, obj.n));
-            B = randn(obj.n, obj.m);
-            if ~bneg
-                B = abs(B); %B should be nonnegative if requested
-            end
-            %package the output
 
             sys_pos = struct;
-            sys_pos.A = A/norm(A)*A_scale;
-            sys_pos.B = B/norm(B);
+            sys_pos.A = cell(obj.Nsys, 1);
+            sys_pos.B = cell(obj.Nsys, 1);
+
+            for s = 1:obj.Nsys
+                
+                A = abs(randn(obj.n, obj.n));
+                B = randn(obj.n, obj.m);
+                if ~bneg
+                    B = abs(B); %B should be nonnegative if requested
+                end
+                %package the output
+    
+                
+                sys_pos.A{s} = A/norm(A)*A_scale;
+                sys_pos.B{s} = B/norm(B);
+            end
         end
         
         function sys_smp = sample_sys(obj, traj, Nsys)
