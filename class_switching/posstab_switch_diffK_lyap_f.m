@@ -6,6 +6,10 @@ classdef posstab_switch_diffK_f < posstab_switch_f
     %Utilizes the Extended Farkas Lemma, does not require the Yalmip robust
     %optimization toolbox anymore       
 
+	properties
+		graph = []; %graph of allowable transitions when switching
+	end
+
     methods
         function obj = posstab_switch_diffK_f(traj, dopts)
             %POSSTAB_CONT Construct an instance of this class
@@ -46,28 +50,40 @@ classdef posstab_switch_diffK_f < posstab_switch_f
 			%with a common Lyapunov function and different controllers K per subsystem (switching-dependent)
 			
 			C_stab_cell = cell(obj.Nsys, 1);
-			d_stab = [];
+			d_stab = cell(obj.Nsys, 1);
 			
 			%add a stability constraint for all allowable arcs (i -> j)					
+			%v(i) - A v(j) - B S(j) 1 > 0 
 			for i = 1:obj.Nsys
+				%origin system i
+				d_curr = vars.y(:, i) - ones(n, 1);
 				for j = 1:obj.Nsys
-				  	if obj.graph(i,j)
-						vars_curr = struct('y', vars.y, 'S', vars.S(:, :, i);
+					%destination system j
+				  	if obj.graph(i,j)2						
 						
-						poly_out_curr = posstab_f@poly_stab(vars);
+						C_stab_curr = [kron(vars.y(:, j)', eye(n)), kron((vars.S(:, :, j)*ones(n, 1))', eye(n))];
 						
-						C_stab_cell{i} = poly_out_curr.C;
-						d_stab = [d_stab; poly_out_curr.d];
+						C_stab_cell{j} = [C_stab_cell{j}; C_stab_curr];
+						d_stab{j} = [d_stab{j}; d_curr];
 					
 				end
 			end
 			
-			%add a positivity constraint for all subsystems
-			C_pos = cell(obj.Nsys, 1
-			
 			C_stab = blkdiag(C_stab_cell{:});
+			d_stab = vertcat(d_stab{:});
 			
-			poly_out = struct('C',C_stab, 'd', d_stab);
+			%add a positivity constraint for all subsystems
+			C_pos_cell = cell(obj.Nsys, 1);
+			for i = 1:obj.Nsys
+				C_pos_cell{i} = -[kron(diag(vars.y(:, i)), eye(n)), kron(vars.S(:, :, i)', eye(n))];
+			end
+			
+			C_pos = blkdiag(C_pos_cell);
+			d_pos = zeros(size(C_pos, 1), 1);
+			
+			
+			
+			poly_out = struct('C',[C_stab; C_pos], 'd', [d_stab; d_pos]);
 			                 
         end
 		
