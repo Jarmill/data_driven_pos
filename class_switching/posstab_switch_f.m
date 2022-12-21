@@ -7,8 +7,7 @@ classdef posstab_switch_f < posstab_f
     %optimization toolbox anymore
     
     properties
-        common_lyap = 0;
-        common_K = 0;
+        Nsys;
     end
 
     methods
@@ -19,71 +18,69 @@ classdef posstab_switch_f < posstab_f
                 dopts = data_opts;
             end
             obj@posstab_f(traj, dopts);
+			
+			%split up the trajectory based on the active subsystem
+			obj.Nsys = traj.Nys;
+			obj.traj = traj_split(traj);
+			
         end
-        
-        function [Cpos, dpos] = pos_cons(obj, traj, data_options)
-            %POS_CONS generate linear constraints such that the
-            %ground-truth system is positive
-            %
-            %for discrete-time, each A{i} subsystem is Nonnegative.
-            %
+		
+		function traj = traj_split(obj, traj_in)
+			%TRAJ_SPLIT split up the trajectory based on the active subsystem
+			%primarily for use in switched systems
+			
+			
+			traj = cell(obj.Nsys, 1);
+			
+			for i = 1:obj.Nsys
+				%isolate data occurring at subsystem i
+				traj_curr = struct('n', traj_in.n, 'm', traj_in.m);
+				mask_sys = traj_in.sys==i;
+				traj_curr.X = traj_in.X(:, mask_sys);
+				traj_curr.Xdelta = traj_in.Xdelta(:, mask_sys);
+				traj_curr.U = traj_in.U(:, mask_sys);
+				
+			end
+		
+		end
+        		
+		function [C, d, F_old] = data_cons(obj, traj, data_options)
+            %DATA_CONS generate the polytope constraint associated with the
+            %given trajectory/data
             %Inputs:
             %   traj:   trajectory
-            %
+            %   data_options:   struct: (nontrivial, pos_A, pos_B)
             %Outputs:
-            %   [Cpos, dpos]: Polytope Cpos x <= dpos for parameters x 
-            %           (vectorized [A;B])     
+            %   [C, d]: Polytope C x <= d for parameters x 
+            %           (vectorized [A;B])
+            %   F_old:  Prior number of faces
             
-            
-            n = size(traj.Xdelta, 1);
-            m = size(traj.U, 1);
-            
-            if data_options.pos_A
-            
-                %only touch the off-diagonal elements of A
-                mask_offdiag = logical(reshape(1-eye(n), [], 1));            
+			
+			C_cell = cell(obj.Nsys, 1);
+			d = [];
+			F_old = 0;
 
-                ncon = n^2 - n;
-                jpos = find(mask_offdiag)';
-                ipos = 1:ncon;
-                vpos = -ones(1, ncon);
-                ncon = sum(mask_offdiag);            
-                
-                if data_options.pos_B
-                    ipos = [ipos,  (ncon + (1:(n*m)))];
-                    jpos = [jpos, (n^2 + (1:n*m))];
-                    vpos = [vpos, -ones(1, n*m)];
-                    ncon = ncon + n*m;
-                end
-
-                Cpos = sparse(ipos, jpos, vpos, ncon, n*(n+m));
-                dpos = sparse([], [], [], ncon, 1); 
-            else
-                Cpos = [];
-                dpos = [];
-            end
-            
-            
+			for i = 1:obj.Nsys
+				[C_curr, D_curr, F_old_curr] = data_cons@posstab_f(obj, traj{i}, data_options);
+				dpos = [dpos; dpos_curr];
+				F_old = F_old + F_old_curr;				
+			end
+			
+			%block diagonal matrix
+			Cpos = blkdiag(Cpos_cell{:});
             
         end
+		
         
         function poly_out = poly_stab(obj, vars)
             %POLY_STAB generate the polytope of positive-stabilizable 
-            %systems given the values in vars
-%             
-%             n = length(vars.y);
-%             %stable system
-%             Gc_stab = [kron(vars.y', eye(n)), kron((vars.S*ones(n, 1))', eye(n))];
-%             
-%             %positive system
-%             M = metzler_indexer(n);
-%             Gc_pos_all = -[kron(diag(vars.y), eye(n)), kron(vars.S', eye(n))];
-%                 
-%             Gc_pos = Gc_pos_all(M, :);
-%             
-%             poly_out = struct;
-%             poly_out.C = [Gc_stab; Gc_pos];
-%             poly_out.d = [-obj.delta*ones(n,1); zeros(n^2-n, 1)];                        
+            %subsystems given the values in vars
+			%with a common Lyapunov function and controller K (switching-independent)
+			
+			poly_out_sys = poly_stab@posstab_f(obj, vars);
+			
+			poly_out = struct('C', kron(poly_out_sys.C, eye(obj.Nsys)), 'd', kron(poly_out_sys.d, ones(obj.Nsys, 1)));
+			                 
         end
 
     end
