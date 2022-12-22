@@ -78,6 +78,11 @@ classdef posstab_switch_f < posstab_f
 			C= blkdiag(C_cell{:});
             
         end
+
+        %possibly implement per-subsystem sign constraints later.
+        %right now, the sign constraints are common among all subsystems
+%        function cons_K = controller_cons(obj, vars, dopts)
+
 		
         
         function poly_out = poly_stab(obj, vars)
