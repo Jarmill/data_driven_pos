@@ -6,11 +6,6 @@ classdef posstab_switch_diffK_f < posstab_switch_f
     %Utilizes the Extended Farkas Lemma, does not require the Yalmip robust
     %optimization toolbox anymore
     
-    properties
-        common_lyap = 0;
-        common_K = 0;
-    end
-
     methods
         function obj = posstab_switch_diffK_f(traj, dopts)
             %POSSTAB_CONT Construct an instance of this class
@@ -25,8 +20,8 @@ classdef posstab_switch_diffK_f < posstab_switch_f
 		
 		function [vars] = make_vars(obj)
             %generate uncertain and decision variables
-           n = size(obj.traj.Xdelta, 1);
-           m = size(obj.traj.U, 1);
+           n = size(obj.traj{1}.Xdelta, 1);
+           m = size(obj.traj{1}.U, 1);
 		   Nsys = obj.Nsys;
            %decision variables
            y = sdpvar(n, 1, 'full');
@@ -50,9 +45,9 @@ classdef posstab_switch_diffK_f < posstab_switch_f
 			d_stab = [];
 			
 			for i = 1:obj.Nsys
-				vars_curr = struct('y', vars.y, 'S', vars.S(:, :, i);
+				vars_curr = struct('y', vars.y, 'S', squeeze(vars.S(:, :, i)));
 				
-				poly_out_curr = posstab_f@poly_stab(vars);
+				poly_out_curr = poly_stab@posstab_f(obj, vars_curr);
 				
 				C_stab_cell{i} = poly_out_curr.C;
 				d_stab = [d_stab; poly_out_curr.d];
