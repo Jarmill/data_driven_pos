@@ -1,6 +1,6 @@
 function [C2, d2] = data_cons(traj, nontrivial)
     %DATA_CONS generate the Linf-polytope constraints associated
-    %with the data in traj
+    %with the data in traj for a system xdelta = A x + B u
     %
     %Inputs:
     %   traj:   structure with fields

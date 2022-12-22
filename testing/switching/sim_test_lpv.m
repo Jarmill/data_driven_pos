@@ -13,7 +13,7 @@ Nv = size(Th_vert, 2);
 
 PS = possim_lpv(n, m, 0.1, L);
 
-PS.sampler.th = @() [1;  (2*rand(PS.L-1,1)-1)];
+PS.sampler.th = @() [1;  [1; 0.7].*(2*rand(PS.L-1,1)-1) + [0; 0.2]];
 
 
 sys = PS.rand_sys(1.3);
