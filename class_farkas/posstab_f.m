@@ -287,9 +287,11 @@ classdef posstab_f
             
             %control action
             out.S = value(vars.S);
+
+            Nv = size(obj.Th_vert, 2);
             
-            out.K = cell(obj.Nsys, 1);
-            for i = 1:obj.Nsys
+            out.K = cell(Nv, 1);
+            for i = 1:Nv
                 out.K{i} = out.S(:, :, i)*diag(1./out.y);
             end
             

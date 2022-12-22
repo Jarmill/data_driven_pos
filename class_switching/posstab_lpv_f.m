@@ -26,16 +26,7 @@ classdef posstab_lpv_f < posstab_f
 			
 			%load in the parameter data
 			obj.Th_vert  = Th_vert;
-            obj.L = length(traj.L);
-
-            %report data-consistency polytope information
-            %sys_cons:  number of linear constraints describing each
-            %           subsystem
-            %F_old:     number of linear constraints that were present
-            %           before eliminating trivial faces
-
-            obj.poly.sys_cons = obj.poly.F_old.sys_cons;
-            obj.poly.F_old = obj.poly.F_old.F_old;
+            obj.L = traj.L;
 
         end
 		
@@ -45,7 +36,7 @@ classdef posstab_lpv_f < posstab_f
            m = size(obj.traj.U, 1);
            %decision variables
            y = sdpvar(n, 1);
-           S = sdpvar(m, n,obj.L, 'full');
+           S = sdpvar(m, n,size(obj.Th_vert, 2), 'full');
            
            vars = struct('y', y, 'S', S);                   
         end
@@ -144,22 +135,25 @@ classdef posstab_lpv_f < posstab_f
 			
             Nth = size(obj.Th_vert, 2);
             n = length(vars.y);
+            Gd_stab = [];
+            Gd_pos = [];
             for i = 1:Nth
 			
                 thcurr = obj.Th_vert(:, i);
                 Scurr = vars.S(:, :, i);
                 %stable system
-                Gd_stab = [kron(thcurr', kron(vars.y', eye(n))), kron((Scurr*ones(n, 1))', eye(n))];
+                Gd_stab_curr = [kron(thcurr', kron(vars.y', eye(n))), kron((Scurr*ones(n, 1))', eye(n))];
+                Gd_stab = [Gd_stab; Gd_stab_curr];
                 
                 %positive system
-                Gd_pos = -[kron(thcurr', kron(diag(vars.y), eye(n))), kron(Scurr', eye(n))];
-                
+                Gd_pos_curr = -[kron(thcurr', kron(diag(vars.y), eye(n))), kron(Scurr', eye(n))];
+                Gd_pos = [Gd_pos; Gd_pos_curr];
             end
 %             Gc_pos = Gc_pos_all(M, :);
             
             poly_out = struct;
             poly_out.C = [Gd_stab; Gd_pos];
-            poly_out.d = [kron(ones(Nth, 1), vars.y-obj.delta*ones(n,1)); zeros(n^2, 1)];       
+            poly_out.d = [kron(ones(Nth, 1), vars.y-obj.delta*ones(n,1)); zeros((Nth*n^2), 1)];       
         end
 
     end
