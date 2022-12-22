@@ -37,10 +37,10 @@ classdef posstab_switch_f < posstab_f
 
         end
 		
-        function [vars] = make_vars(obj)
+		        function [vars] = make_vars(obj)
             %generate uncertain and decision variables
-           n = size(obj.traj{1}.Xdelta, 1);
-           m = size(obj.traj{1}.U, 1);
+           n = size(obj.traj.Xdelta, 1);
+           m = size(obj.traj.U, 1);
            %decision variables
            y = sdpvar(n, 1);
            S = sdpvar(m, n, 'full');
@@ -87,7 +87,7 @@ classdef posstab_switch_f < posstab_f
 			
 			poly_out_sys = poly_stab@posstab_f(obj, vars);
 			
-			poly_out = struct('C', kron(eye(obj.Nsys), poly_out_sys.C), 'd', kron(ones(obj.Nsys, 1), poly_out_sys.d));
+			poly_out = struct('C', kron(poly_out_sys.C, eye(obj.Nsys)), 'd', kron(poly_out_sys.d, ones(obj.Nsys, 1)));
 			                 
         end
 
