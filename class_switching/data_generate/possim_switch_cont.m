@@ -23,11 +23,11 @@ classdef possim_switch_cont < possim_switch
                 m=2 ;
             end
             
-            if nargin <=3
+            if nargin <3
                 epsilon = 0.1;
             end
                 
-            if nargin <=4
+            if nargin <4
                 Nsys = 1;
             end
 
@@ -37,6 +37,7 @@ classdef possim_switch_cont < possim_switch
 
             obj.sampler.x=@() rand(obj.n, 1)*obj.Rmax;
 
+            obj.Nsys = Nsys;
         end
 
         function out = sample_slope(obj, T, sys)
@@ -88,8 +89,7 @@ classdef possim_switch_cont < possim_switch
 
             ground_truth = struct;
             ground_truth.A = sys.A;
-            ground_truth.B = sys.B;
-            ground_truth.S = S;
+            ground_truth.B = sys.B;            
             ground_truth.W = W_true;
 
             %package up the output
@@ -102,6 +102,7 @@ classdef possim_switch_cont < possim_switch
             out.n = obj.n;
             out.m = obj.m;
             out.Nsys = obj.Nsys;
+            out.S = S;
 %             out.L = obj.L;
         end
         
@@ -197,13 +198,7 @@ classdef possim_switch_cont < possim_switch
                 sys_pos.A{s} = A/norm(A)*A_scale;
                 sys_pos.B{s} = B/norm(B);
             end
-            
-            
-            %package the output
-
-            sys_pos = struct;
-            sys_pos.A = A/norm(A)*A_scale;
-            sys_pos.B = B/norm(B);
+    
         end               
 
     

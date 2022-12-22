@@ -81,7 +81,7 @@ classdef posstab_switch_cont_f < posstab_switch_f % & posstab_cont (how to do mu
             poly_out_orig.C = [Gc_stab; Gc_pos];
             poly_out_orig.d = [-obj.delta*ones(n,1); zeros(n^2-n, 1)];                        
 			
-			poly_out = struct('C', kron(poly_out_orig.C, eye(obj.Nys)), 'd', kron(poly_out_orig.d, ones(obj.Nys, 1)));
+			poly_out = struct('C', kron(eye(obj.Nsys), poly_out_orig.C), 'd', kron(ones(obj.Nsys, 1), poly_out_orig.d));
 			
         end
 
