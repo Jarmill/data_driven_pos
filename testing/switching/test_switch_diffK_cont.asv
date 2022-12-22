@@ -8,12 +8,17 @@ m =2;
 Nsys = 2;
 T = 90;
 
-%does not
-rng(20, 'twister')
+%works
 n= 2;
-m =3;
+m =2;
 Nsys = 4;
-T = 150;
+T = 20;
+
+%works
+n= 3;
+m =2;
+Nsys = 4;
+T = 20;
 
 epsilon = 0.1;
 % epsilon = 0;
@@ -29,7 +34,7 @@ traj = PS.sample_slope(T, sys);
 dopts = data_opts;
 dopts.nontrivial = 1;
 
-ST = posstab_switch_cont_f(traj, dopts);
+ST = posstab_switch_diffK_cont_f(traj, dopts);
 
 sys_combined = [];
 for i = 1:Nsys
@@ -50,8 +55,8 @@ out = ST.run();
         sblock = cell(Nsys, 1);
         eig_clp = zeros(n, Nsys);
         for i = 1:Nsys
-            sys_clp_true{i} = sys.A{i} + sys.B{i}*out.K;
-            sblock{i} = sys.A{i}*diag(out.y) + sys.B{i}*out.S;
+            sys_clp_true{i} = sys.A{i} + sys.B{i}*out.K{i};
+            sblock{i} = sys.A{i}*diag(out.y) + sys.B{i}*out.S(:, :, i);
             % -ones(1, n)*sblock
             %why does this have an off-diagonal element
             eig_clp(:, i) = (eig(sys_clp_true{i})');
