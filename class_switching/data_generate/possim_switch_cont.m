@@ -128,11 +128,12 @@ classdef possim_switch_cont < possim_switch
             S = [];
 
             xprev = x0;
-            tmax_curr = exprnd(mu);          
+            
             t_all = 0;
             switch_times = 0;
             while t_all < Tsim
-                tmax_curr = min(t_all + tmax_curr, T);
+                tmax_curr = exprnd(mu);          
+                tmax_curr = min(tmax_curr, T-t_all);
                 scurr = obj.sampler.sys(xprev);
 
                 Kcurr = K{scurr};
