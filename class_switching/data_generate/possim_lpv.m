@@ -53,13 +53,15 @@ classdef possim_lpv
             end           
 
             
-            X = [x0, zeros(obj.n, T)];      %state
+            Xn = [x0, zeros(obj.n, T-1)];      %state
+            Xdelta = zeros(obj.n, T);      %state
             U = zeros(obj.m, T);            %input
             W_true = zeros(obj.n, T);       %noise term
             Th = zeros(obj.L, T);           %parameter
             %main simulation loop
             xcurr = x0;
             for i = 1:T
+                Xn(:, i) = xcurr;
                 %inputs
                 
                 wcurr = obj.sampler.w()*obj.epsilon;
@@ -74,12 +76,13 @@ classdef possim_lpv
                 end   
                 
                 %storage
-                X(:, i+1) = xnext;
+                
+                Xdelta(:, i) = xnext;
                 U(:, i) = ucurr;
                 W_true(:, i) = wcurr;
                 Th(:, i) = thcurr;
 %                 Th(:, i) = thcurr;
-                xcurr = obj.transition_x(xnext);
+                xcurr = obj.transition_x(xnext);                
             end
             
 
@@ -89,9 +92,9 @@ classdef possim_lpv
             ground_truth.W = W_true;
 
             %package up the output
-            out.X = X;
-            out.Xn = X(:, 1:end-1);
-            out.Xdelta = X(:, 2:end);
+            
+            out.Xn = Xn;
+            out.Xdelta = Xdelta;
             out.U = U;
             out.epsilon = obj.epsilon;            
             out.ground_truth = ground_truth;

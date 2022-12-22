@@ -133,11 +133,11 @@ classdef posstab_lpv_f < posstab_f
             %subsystems given the values in vars
 			%with a common Lyapunov function and controller K (switching-independent)
 			
-            Nth = size(obj.Th_vert, 2);
+            Nv = size(obj.Th_vert, 2);
             n = length(vars.y);
             Gd_stab = [];
             Gd_pos = [];
-            for i = 1:Nth
+            for i = 1:Nv
 			
                 thcurr = obj.Th_vert(:, i);
                 Scurr = vars.S(:, :, i);
@@ -153,7 +153,7 @@ classdef posstab_lpv_f < posstab_f
             
             poly_out = struct;
             poly_out.C = [Gd_stab; Gd_pos];
-            poly_out.d = [kron(ones(Nth, 1), vars.y-obj.delta*ones(n,1)); zeros((Nth*n^2), 1)];       
+            poly_out.d = [kron(ones(Nv, 1), vars.y-obj.delta*ones(n,1)); zeros((Nv*n^2), 1)];       
         end
 
     end
