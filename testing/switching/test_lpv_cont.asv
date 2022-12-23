@@ -6,8 +6,8 @@ n= 2;
 m =2;
 L = 3;
 
-T = 10; %works
-% T = 20; %works
+% T = 8; %feasible but failed eigenval
+T = 20; %works
 
 Th_vert = [ 1  1 1 1;
            -1 -1 1 1;

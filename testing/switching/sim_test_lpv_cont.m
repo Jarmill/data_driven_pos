@@ -9,7 +9,11 @@ Th_vert = [ 1  1 1 1;
            -1 -1 1 1;
            1  -1 1 -1];
 
-Th_vert = diag([1; 1; 0.7])*Th_vert + [0; 0; 0.2];
+th_scale = [1; 1; 0.7];
+th_trans = [0; 0 ;0.2];
+Th_vert = diag(th_scale)*Th_vert + th_trans;
+
+% Th_vert = diag([1; 1; 0.7])*Th_vert + [0; 0; 0.2];
 
 
 % %does not work

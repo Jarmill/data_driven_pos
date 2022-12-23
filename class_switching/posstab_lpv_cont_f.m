@@ -73,10 +73,29 @@ classdef posstab_lpv_cont_f < posstab_lpv_f % & posstab_cont (how to do multiple
             n = length(vars.y);
             Nv = size(obj.Th_vert, 2);
             %stable system
-            poly_out = poly_stab@posstab_lpv_f(obj, vars);
+            M = metzler_indexer(n);
+            Gc_stab = [];
+            Gc_pos = [];
 
-            poly_out.d(1:(Nv*n)) = poly_out.d(1:(Nv*n)) - kron(ones(Nv, 1), vars.y);
-			
+            for i = 1:Nv
+                thcurr = obj.Th_vert(:, i);
+                Scurr = vars.S(:, :, i);
+                %stable system
+                Gc_stab_curr = [kron(thcurr', kron(vars.y', eye(n))), kron((Scurr*ones(n, 1))', eye(n))];
+                Gc_stab = [Gc_stab; Gc_stab_curr];
+                
+                %positive system
+                Gc_pos_curr = -[kron(thcurr', kron(diag(vars.y), eye(n))), kron(Scurr', eye(n))];                
+                Gc_pos = [Gc_pos; Gc_pos_curr(M, :)];
+            end
+
+            poly_out = struct;
+            poly_out.C = [Gc_stab; Gc_pos];
+            poly_out.d = [kron(ones(Nv, 1), -obj.delta*ones(n,1)); zeros(size(Gc_pos, 1), 1)];                        
+%             poly_out = poly_stab@posstab_lpv_f(obj, vars);
+% 
+%             poly_out.d(1:(Nv*n)) = poly_out.d(1:(Nv*n)) - kron(ones(Nv, 1), vars.y);
+% 			
         end
 
     end
