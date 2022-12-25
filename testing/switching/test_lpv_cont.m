@@ -1,6 +1,9 @@
 rng(42, 'twister')
 
-SOLVE = 1;
+SOLVE = 0;
+SYSSAMPLE = 1;
+TRAJ= 1;
+PLOT = 1;
 %
 n= 2;
 m =2;
@@ -56,11 +59,13 @@ pall_true = reshape(sys_combined, [], 1);
 check_poly = ST.poly.d - ST.poly.C*pall_true;
 
 Avert = cell(Nv, 1);
+eig_open = zeros(n, Nv);
 for i = 1:Nv
     Avert{i} = 0;
     for k = 1:L
         Avert{i} = Avert{i} + sys.A{k}*Th_vert(k, i);
     end
+    eig_open(:, i) = eig(Avert{i});
 end
 
 
@@ -87,4 +92,76 @@ out = ST.run();
     else
         disp('infeasible')        
     end
+end
+
+%% sample plants
+if SYSSAMPLE
+% acquire samples
+Nsys = 15;
+sys_smp = ST.sample_sys(Nsys);
+
+% validate samples
+% if ~isempty(out)
+% [valid, eig_out] = LP.validate_stab_multi(sys_smp, Th_vert, out.K);
+% end
+end
+
+%% sample a trajectory
+if TRAJ
+
+        x0 = [-1.5; 1.5];
+    sys_all = [{traj.ground_truth}; sys_smp];
+
+    %     sys_test = sys_smp{8};
+    
+    Ntraj = 30;
+
+    traj_cont = cell(Nsys+1, Ntraj);
+    T_cont = 4;
+    mu_cont = 0.05;
+    for i = 1:Nsys+1
+        rng(40, 'twister');
+        for j = 1:Ntraj        
+            [traj_cont{i, j}, Kth_tar] = PS.sim_closed_cont(Th_vert, out.K, sys_all{i}, x0, T_cont, mu_cont);
+        end
+    end
+end
+
+%% Plot the system
+if PLOT
+    figure(1)
+    clf
+    hold on
+    c = linspecer(2);
+    tiledlayout(2, 1);
+    nexttile;
+    hold on
+    for i = Nsys:-1:1
+        for j = 1:1
+            if i>1
+                ccurr = c(1, :);
+            else
+                ccurr = c(2, :);
+            end
+            plot(traj_cont{i, j}.X(1, :), traj_cont{i, j}.X(2, :), 'color', ccurr, 'linewidth', 2)
+        end
+    end
+    scatter(x0(1), x0(2), 300, 'ok')
+    xlim([x0(1)-0.1, 0.1])
+    xlabel('$x_1$', 'interpreter', 'latex')
+    ylabel('$x_2$', 'interpreter', 'latex')
+    title('1 Parameter Sequence', 'FontSize', 16)
+    
+    nexttile;
+    hold on
+    for i = 1:Nsys
+        for j = 1:Ntraj
+            plot(traj_cont{i, j}.X(1, :), traj_cont{i, j}.X(2, :), 'color', c(1, :))
+        end
+    end
+    scatter(x0(1), x0(2), 300, 'ok')
+title(sprintf('%d Parameter Sequences', Ntraj), 'FontSize', 16)
+xlim([x0(1)-0.1, 0.1])
+xlabel('$x_1$', 'interpreter', 'latex')
+ylabel('$x_2$', 'interpreter', 'latex')
 end

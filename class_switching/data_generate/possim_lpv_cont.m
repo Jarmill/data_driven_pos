@@ -77,87 +77,36 @@ classdef possim_lpv_cont < possim_lpv
             
             sys_pos.B = B/norm(B);
         end
-        
-        function sys_smp = sample_sys(obj, traj, Nsys)
-            %sample a set of systems consistent with the data
-            %optima of linear objective over the quadratic region
-            if nargin <3
-                Nsys = 1;
-            end
-            n = size(traj.X,1);
-            [m, T] = size(traj.U);
-            
-            Xp = traj.X(:, 2:end);
-            Xn = traj.X(:, 1:end-1);
-            
-            %declare variables and error object
-            B = sdpvar(n, m, 'full');
-            A = cell(L, 1);
-            W = Xp -B*traj.U;           
-            for k = 1:obj.L
-                W = W - A{k}*(traj.Th(k, :) .* Xn);
-            end
-            
-            cons = [];
-            for t = 1:T
-                cons = [cons; norm(W(:, t), 'inf') <= traj.epsilon]; 
-            end
-%             W2 = sum(W.^2, 1);
+               
 
-%             cons = (W2' <= traj.epsilon^2);
-            
-            sys_smp = cell(Nsys, 1);
-            %I'm not sure why the yalmip optimizer isn't working here.
-%             opts = sdpsettings('solver','mosek', 'verbose', 2);
-            opts = sdpsettings('solver','mosek', 'verbose', 0);
-
-            for i = 1:Nsys
-%                 sys_curr = struct('A', [], 'B', []);
-                CB = randn(n, m);
-                
-                objective = sum(CB.*B, 'all');
-                objective = objective + sum(CA.*A, 'all');
-%                 for k = 1:obj.L
-%                     CA = randn(n, n);
-%                     objective = objective + sum(CA.*A{k}, 'all');
-%                 end
-                %solve the program                
-                sol = optimize(cons, objective, opts);
-                
-                %recover the solution
-                sys_curr = struct;
-                sys_curr.B = value(B);
-                sys_curr.A = cellfun(@value, A, 'UniformOutput', false);
-%                 sys_curr.W2 = value(W2);
-                sys_curr.W = value(W);
-                sys_curr.Wnorm =max(abs(W), [], 1);
-                sys_smp{i} = sys_curr;
-            end           
-        end
-
-         function out = sim_closed_cont(obj, sys, Kth, x0, T, mu)
+         function [out, Kth] = sim_closed_cont(obj, Th_vert, K, sys, x0, T, mu)
             %simulate an continuous-time controlled LPV trajectory 
             %there is no sample noise here.
             
             %Kth(th): gain-scheduled controller at parameter value theta
             out = struct;
 
-            if nargin < 5
+            Pth = get_vertex_interp(Th_vert);
+            Kth = @(th) K_interp(Pth, K, th); %interpolating controller
+
+
+            if nargin < 6
                 T = 15;
             end
-            if nargin < 6
+            if nargin < 7
                 mu = 0.3;
             end
 
-            if nargin < 2
+            if nargin < 4
                 sys = obj.rand_sys();
             end
             
-            if nargin < 3
+            if nargin < 1
+                Th_vert = [];
                 Kth = @(th) 0;
             end
             
-            if nargin < 4
+            if nargin < 5
                 x0 = zeros(obj.n, 1);
                 x0(1) = 1;
             end           
