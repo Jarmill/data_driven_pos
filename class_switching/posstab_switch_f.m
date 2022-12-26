@@ -96,6 +96,39 @@ classdef posstab_switch_f < posstab_f
 			                 
         end
 
+        function sys_out = sample_sys(obj, Nsystems)
+            %SAMPLE_SYS: randomly sample systems inside the polytope
+            %consistency set obj.poly
+            %
+            
+
+            sys_raw = cprnd(Nsystems, obj.poly.C, obj.poly.d);
+
+            n = obj.traj{1}.n;
+            m = obj.traj{1}.m;
+            
+
+            sys_out = cell(Nsystems, 1);
+            for i = 1:Nsystems
+                sys_curr = struct;
+                sys_curr.A = cell(obj.Nsys, 1);
+                sys_curr.B = cell(obj.Nsys, 1);
+                ind = 0;
+                for j = 1:obj.Nsys
+                    sys_curr.A{j} = reshape(sys_raw(i, ind + (1:n^2)), n, n);
+                    ind = ind + n^2;
+                    sys_curr.B{j} = reshape(sys_raw(i, ind + (1:(n*m))), n, m);
+                    ind = ind + n*m;
+                end
+                
+                
+
+                sys_out{i} = sys_curr;
+
+
+            end
+        end
+
     end
 end
 

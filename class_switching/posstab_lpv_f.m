@@ -127,18 +127,18 @@ classdef posstab_lpv_f < posstab_f
 %        function cons_K = controller_cons(obj, vars, dopts)
 
 		
-        function sys_out = sample_sys(obj, Nsys)
+        function sys_out = sample_sys(obj, Nsystems)
             %SAMPLE_SYS: randomly sample systems inside the polytope
             %consistency set obj.poly
 
-            sys_raw = cprnd(Nsys, obj.poly.C, obj.poly.d);
+            sys_raw = cprnd(Nsystems, obj.poly.C, obj.poly.d);
 
             n = obj.traj.n;
             m = obj.traj.m;
             L = obj.traj.L;
 
-            sys_out = cell(Nsys, 1);
-            for i = 1:Nsys
+            sys_out = cell(Nsystems, 1);
+            for i = 1:Nsystems
                 sys_curr = struct;
                 sys_curr.A = cell(L, 1);
                 ind = 0;
@@ -182,6 +182,15 @@ classdef posstab_lpv_f < posstab_f
             poly_out = struct;
             poly_out.C = [Gd_stab; Gd_pos];
             poly_out.d = [kron(ones(Nv, 1), vars.y-obj.delta*ones(n,1)); zeros((Nv*n^2), 1)];       
+        end
+
+        function out = recover_controller(obj, vars)
+            %RECOVER get the controllers and parameters
+            
+            Nv = size(obj.Th_vert, 2);
+            for i = 1:Nv
+                out.K{i} = out.S(:, :, i)*diag(1./out.y);
+            end
         end
 
     end

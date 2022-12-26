@@ -59,6 +59,17 @@ classdef posstab_switch_diffK_f < posstab_switch_f
 			                 
         end
 
+        function K = recover_controller(obj, vars)
+            %RECOVER_CONTROLLER recover the controller
+             K = cell(obj.Nsys, 1);
+            for i = 1:obj.Nsys
+                K{i} = vars.S(:, :, i) * diag(1./vars.y);
+            end            
+
+        end
+
+           
+
     end
 end
 

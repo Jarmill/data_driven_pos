@@ -107,7 +107,7 @@ classdef possim_switch_cont < possim_switch
         end
         
         
-        function traj = sim_closed_cont(obj, sys, K, Tsim, x0)
+        function traj = sim_closed_cont(obj, sys, K, Tsim, x0, mu0)
             %SIM_CONT simulate a trajectory in continuous-time
 
             if nargin < 2
@@ -122,8 +122,12 @@ classdef possim_switch_cont < possim_switch
                 x0 = ones(obj.n, 1);
             end
 
+            if nargin < 6
+                mu0 = 0.3;
+            end
+
             if ~iscell(K)
-                Nsys = length(sys);
+                Nsys = length(sys.A);
                 K0 = K;
                 K = cell(Nsys, 1);
                 for i = 1:Nsys
@@ -142,8 +146,8 @@ classdef possim_switch_cont < possim_switch
             t_all = 0;
             switch_times = 0;
             while t_all < Tsim
-                tmax_curr = exprnd(mu);          
-                tmax_curr = min(t_all + tmax_curr, T) - t_all;
+                tmax_curr = exprnd(mu0);          
+                tmax_curr = min(t_all + tmax_curr, Tsim) - t_all;
                 scurr = obj.sampler.sys(xprev);
 
                 Kcurr = K{scurr};
@@ -155,8 +159,8 @@ classdef possim_switch_cont < possim_switch
                 U = [U, Kcurr*xcurr'];
                 
                 xprev = xcurr(end, :)';
-                t_all = t_all + tmax_curr;
-                T = [T, t_all + tcurr];
+                
+                T = [T, t_all + tcurr'];
                 switch_times = [switch_times; t_all + tmax_curr];
                 t_all = t_all + tmax_curr;
                 S = [S; scurr];

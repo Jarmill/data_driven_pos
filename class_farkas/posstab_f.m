@@ -286,16 +286,19 @@ classdef posstab_f
             out.Z = value(vars.Z);
             
             %control action
-            out.S = value(vars.S);
-
-            Nv = size(obj.Th_vert, 2);
+            out.S = value(vars.S);            
             
-            out.K = cell(Nv, 1);
-            for i = 1:Nv
-                out.K{i} = out.S(:, :, i)*diag(1./out.y);
-            end
+            out.K = obj.recover_controller(vars);
+            
             
         end
+
+        function K = recover_controller(obj, vars)
+            %RECOVER_CONTROLLER recover the controller
+            K = value(vars.S) * diag(1./value(vars.y));
+        end
     end
+
+    
 end
 

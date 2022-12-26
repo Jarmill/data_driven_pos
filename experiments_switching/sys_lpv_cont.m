@@ -1,7 +1,7 @@
 rng(42, 'twister')
 
-SOLVE = 0;
-SYSSAMPLE = 0;
+SOLVE = 1;
+SYSSAMPLE = 1;
 TRAJ= 1;
 PLOT = 1;
 %
