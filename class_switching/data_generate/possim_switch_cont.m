@@ -126,8 +126,10 @@ classdef possim_switch_cont < possim_switch
                 mu0 = 0.3;
             end
 
+            
+            Nsys = length(sys.A);
             if ~iscell(K)
-                Nsys = length(sys.A);
+                
                 K0 = K;
                 K = cell(Nsys, 1);
                 for i = 1:Nsys
@@ -145,11 +147,15 @@ classdef possim_switch_cont < possim_switch
             
             t_all = 0;
             switch_times = 0;
+            snext = randi(Nsys, 1);
             while t_all < Tsim
                 tmax_curr = exprnd(mu0);          
                 tmax_curr = min(t_all + tmax_curr, Tsim) - t_all;
-                scurr = obj.sampler.sys(xprev);
 
+                %TODO: implement this later for state-feedback
+                %stabilization
+                %                 scurr = obj.sampler.sys(xprev);
+                scurr = snext;
                 Kcurr = K{scurr};
 
                 Acl = sys.A{scurr} + sys.B{scurr}*Kcurr;
@@ -164,6 +170,10 @@ classdef possim_switch_cont < possim_switch
                 switch_times = [switch_times; t_all + tmax_curr];
                 t_all = t_all + tmax_curr;
                 S = [S; scurr];
+
+                %select the next (non-identical) subsystem
+                sstep = randi(Nsys-1, 1);
+                snext = mod(scurr - 1 + sstep, Nsys)+1;
             end
             
             traj = struct('t', T, 'X', X, 'U', U, 'switch_times', switch_times, 'S', S);

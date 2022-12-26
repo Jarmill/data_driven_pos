@@ -131,7 +131,8 @@ classdef posstab_lpv_f < posstab_f
             %SAMPLE_SYS: randomly sample systems inside the polytope
             %consistency set obj.poly
 
-            sys_raw = cprnd(Nsystems, obj.poly.C, obj.poly.d);
+            opts_cprnd = struct('discard', 100);
+            sys_raw = cprnd(Nsystems, obj.poly.C, obj.poly.d, opts_cprnd);
 
             n = obj.traj.n;
             m = obj.traj.m;

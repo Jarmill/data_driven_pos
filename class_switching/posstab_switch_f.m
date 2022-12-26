@@ -102,7 +102,8 @@ classdef posstab_switch_f < posstab_f
             %
             
 
-            sys_raw = cprnd(Nsystems, obj.poly.C, obj.poly.d);
+            opts_cprnd = struct('discard', 100);
+            sys_raw = cprnd(Nsystems, obj.poly.C, obj.poly.d, opts_cprnd);
 
             n = obj.traj{1}.n;
             m = obj.traj{1}.m;

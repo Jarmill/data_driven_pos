@@ -1,17 +1,34 @@
 %test the DDC algorithm on a discrete-time switched system
-SOLVE = 1;
-SYSSAMPLE = 1;
+SOLVE = 0;
+SYSSAMPLE = 0;
 TRAJ = 1;
 PLOT = 1;
 
 rng(482, 'twister')
 
 %works
-n= 2;
+n= 3;
 m =2;
 Nsys = 2;
 
-T = 20;
+A1 = [-0.55, 0.3, 0.65; 0.06, -1.35, 0.25; 0.1, 0.15, 0.4];
+
+B1 = [0.18, 0.08; 0.47, 0.25; 0.07, 0.95];
+
+% A2 = [-0.5, 0.1, 0.2; 0.3 0.2 1; 0 0.5 -2];
+
+
+% A2 = diag([0.05; -1; 0.5]);
+A2 = diag([0; -2; 0.5])+0.1*ones(n);
+B2 = [1 0; 0 0; 0 1];
+% B2 = B1;
+
+sys = struct;
+sys.A = {A1; A2};
+sys.B = {B1; B2};
+
+
+T = 55;
 
 % n= 3;
 % m =1;
@@ -25,7 +42,7 @@ epsilon = 0.1;
 PS = possim_switch_cont(n, m, epsilon, Nsys);
 
 
-sys = PS.rand_sys(1.1);
+% sys = PS.rand_sys(1.1);
 
 
 % T = 160;
@@ -68,8 +85,9 @@ out = ST.run();
 end
 if SYSSAMPLE
 % acquire samples
-Nsys = 15;
-sys_smp = ST.sample_sys(Nsys);
+Nsystem= 15;
+% Nsys = 1;
+sys_smp = ST.sample_sys(Nsystem);
 
 % validate samples
 % if ~isempty(out)
@@ -79,17 +97,20 @@ end
 
 if TRAJ
 
-    x0 = [0.5; 1.5];
+    x0 = [0.5; 1.5; 1];
     sys_all = [{traj.ground_truth}; sys_smp];
 
     %     sys_test = sys_smp{8};
     
     Ntraj = 30;
+%     Ntraj = 1;
+%     Ntraj = 10;
 
-    traj_cont = cell(Nsys+1, Ntraj);
-    T_cont = 8;
-    mu_cont = 0.3;
-    for i = 1:Nsys+1
+    traj_cont = cell(Nsystem+1, Ntraj);
+    T_cont = 30;
+%     mu_cont = 0.3;
+    mu_cont = 0.5;
+    for i = 1:Nsystem+1
         rng(40, 'twister');
         for j = 1:Ntraj        
             [traj_cont{i, j}] = PS.sim_closed_cont(sys_all{i}, out.K, T_cont, x0, mu_cont);
@@ -103,49 +124,53 @@ if PLOT
     clf
     hold on
     c = linspecer(2);
-    tiledlayout(2, 1);
+    tiledlayout(1, 2);
     nexttile;
     hold on
-    for i = Nsys:-1:1
+    for i = Nsystem:-1:1
         for j = 1:1
             if i>1
                 ccurr = c(1, :);
             else
                 ccurr = c(2, :);
             end
-            plot(traj_cont{i, j}.X(1, :), traj_cont{i, j}.X(2, :), 'color', ccurr, 'linewidth', 2)
+            plot3(traj_cont{i, j}.X(1, :), traj_cont{i, j}.X(2, :), traj_cont{i, j}.X(3, :), 'color', ccurr, 'linewidth', 2)
         end
     end
-    scatter(x0(1), x0(2), 300, 'ok')
+    scatter3(x0(1), x0(2), x0(3), 300, 'ok')
 
-    xlim([0, 0.6])
-ylim([0, 2])
+xlim([0, 0.9])
+% ylim([0, 2])
     xlabel('$x_1$', 'interpreter', 'latex')
     ylabel('$x_2$', 'interpreter', 'latex')
+    zlabel('$x_3$', 'interpreter', 'latex')
     title('1 Switching Sequence', 'FontSize', 16)
-    
+    view(3)
+
     nexttile;
     hold on
-    for i = 1:Nsys
+    for i = 1:Nsystem
         for j = 1:Ntraj
-            plot(traj_cont{i, j}.X(1, :), traj_cont{i, j}.X(2, :), 'color', c(1, :))
+            plot3(traj_cont{i, j}.X(1, :), traj_cont{i, j}.X(2, :), traj_cont{i, j}.X(3, :), 'color', c(1, :))
         end
     end
-    scatter(x0(1), x0(2), 300, 'ok')
-title(sprintf('%d Switching Sequences', Ntraj), 'FontSize', 16)
+    scatter3(x0(1), x0(2), x0(3), 300, 'ok')
+    title(sprintf('%d Switching Sequences', Ntraj), 'FontSize', 16)
 
-xlim([0, 0.6])
-ylim([0, 2])
+xlim([0, 0.9])
+% ylim([0, 2])
 xlabel('$x_1$', 'interpreter', 'latex')
 ylabel('$x_2$', 'interpreter', 'latex')
+zlabel('$x_3$', 'interpreter', 'latex')
+view(3)
 end
 %% plot the Lyapunov function
 if PLOT
 figure(6)
 clf
 hold on
-for i = 1:Nsys
-    for j = 1:Nsys
+for i = 1:Nsystem
+    for j = 1:Ntraj
         vcurr = max(traj_cont{i, j}.X./out.y, [], 1);
         plot(traj_cont{i, j}.t, vcurr);
     end
