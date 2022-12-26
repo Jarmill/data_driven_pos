@@ -114,6 +114,7 @@ classdef possim_lpv_cont < possim_lpv
             X = [];
             Th = [];
             U = [];
+            Tlog = [];
             
 %             X = [x0, zeros(obj.n, T)];
 %             U = zeros(obj.m, T);
@@ -123,11 +124,12 @@ classdef possim_lpv_cont < possim_lpv
 %             traj = {};
             xprev = x0;
 %             trajcurr = struct;
-            tmax_curr = exprnd(mu);          
+            
             t_all = 0;
             switch_times = 0;
             while t_all < T
-                tmax_curr = min(t_all + tmax_curr, T);
+                tmax_curr = exprnd(mu);
+                tmax_curr = min(t_all + tmax_curr, T) - t_all;
                 %inputs
                 
 %                 wcurr = obj.sampler.w()*obj.epsilon;
@@ -148,14 +150,16 @@ classdef possim_lpv_cont < possim_lpv
                 X = [X, xcurr'];
                 U = [U, Kcurr*xcurr'];
                 Th = [Th, thcurr];
+                Tlog = [Tlog; t_all + tcurr];
                 %storage
 %                 X(:, i+1) = xnext;
 %                 U(:, i) = ucurr;
 %                 W_true(:, i) = wcurr;
 %                 Th(:, i) = thcurr;
                 xprev = xcurr(end, :)';
+                switch_times = [switch_times; t_all + tmax_curr];
                 t_all = t_all + tmax_curr;
-                switch_times = [switch_times; tmax_curr];
+                
             end
             
 
@@ -169,6 +173,7 @@ classdef possim_lpv_cont < possim_lpv
             out.X = X;
             out.U = U;
             out.Th = Th;    
+            out.t = Tlog;
             out.ground_truth = ground_truth;
             out.n = obj.n;
             out.m = obj.m;

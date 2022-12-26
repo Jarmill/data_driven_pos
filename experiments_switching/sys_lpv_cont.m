@@ -1,9 +1,9 @@
 rng(42, 'twister')
 
-SOLVE = 1;
+SOLVE = 0;
 SYSSAMPLE = 0;
-TRAJ= 0;
-PLOT = 0;
+TRAJ= 1;
+PLOT = 1;
 %
 n= 2;
 m =2;
@@ -104,8 +104,8 @@ if TRAJ
     Ntraj = 30;
 
     traj_cont = cell(Nsys+1, Ntraj);
-    T_cont = 4;
-    mu_cont = 0.05;
+    T_cont = 6;
+    mu_cont = 0.3;
     for i = 1:Nsys+1
         rng(40, 'twister');
         for j = 1:Ntraj        
@@ -135,6 +135,8 @@ if PLOT
     end
     scatter(x0(1), x0(2), 300, 'ok')
 
+    xlim([0, 0.65])
+ylim([0, 1.75])
     xlabel('$x_1$', 'interpreter', 'latex')
     ylabel('$x_2$', 'interpreter', 'latex')
     title('1 Parameter Sequence', 'FontSize', 16)
@@ -149,6 +151,25 @@ if PLOT
     scatter(x0(1), x0(2), 300, 'ok')
 title(sprintf('%d Parameter Sequences', Ntraj), 'FontSize', 16)
 
+xlim([0, 0.65])
+ylim([0, 1.75])
 xlabel('$x_1$', 'interpreter', 'latex')
 ylabel('$x_2$', 'interpreter', 'latex')
 end
+%% plot the Lyapunov function
+if PLOT
+figure(6)
+clf
+hold on
+for i = 1:Nsys
+    for j = 1:Nsys
+        vcurr = max(traj_cont{i, j}.X./out.y, [], 1);
+        plot(traj_cont{i, j}.t, vcurr);
+    end
+end
+title('Lyapunov Function along Trajectories', 'Fontsize', 16)
+xlabel('$t$', 'interpreter', 'Latex')
+ylabel('max$(x./v)$', 'interpreter', 'Latex')
+end
+
+

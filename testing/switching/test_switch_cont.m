@@ -1,5 +1,9 @@
 %test the DDC algorithm on a discrete-time switched system
 SOLVE = 1;
+SYSSAMPLE = 1;
+TRAJ = 1;
+PLOT = 1;
+
 rng(42, 'twister')
 
 %works
@@ -8,12 +12,12 @@ m =2;
 Nsys = 2;
 T = 90;
 
-%does not
-rng(20, 'twister')
-n= 2;
-m =3;
-Nsys = 4;
-T = 150;
+% %does not
+% rng(20, 'twister')
+% n= 2;
+% m =3;
+% Nsys = 4;
+% T = 150;
 
 epsilon = 0.1;
 % epsilon = 0;
@@ -60,4 +64,7 @@ out = ST.run();
     else
         disp('infeasible')        
     end
+end
+
+if SYSSAMPLE
 end
