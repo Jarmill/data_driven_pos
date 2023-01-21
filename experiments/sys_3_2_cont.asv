@@ -56,7 +56,7 @@ end
 if SAMPLE&&~out.sol.problem
 %     Nsys = 30;
     Nsys = 100;
-    x0 = 4*ones(n, 1);
+    x0 = ones(n, 1);
     
     sys_vec = cprnd(Nsys, ST.poly.C, ST.poly.d);
     
@@ -81,7 +81,7 @@ end
 if PLOT&&~out.sol.problem
     figure(1)
     clf
-    ax2 = subplot(1, 2, 2);
+    ax2 = subplot(1, 2, 2)
     hold on
     for i = 1:Nsys
         plot3(traj_smp{i}.Xn(1, :), traj_smp{i}.Xn(2, :), traj_smp{i}.Xn(3, :), 'color', [0.9153    0.2816    0.2878]);
@@ -96,24 +96,24 @@ if PLOT&&~out.sol.problem
     zlabel('$x_3$', 'interpreter', 'latex')
 %     title(sprintf('Positive System Control (Nsys = %d)', Nsys), 'fontsize', 16)
     title(sprintf('System Control (Nsys = %d)', Nsys), 'fontsize', 16)    
-view(-26, 20)
+
 
 %     figure(7)
 %     clf
-ax1 = subplot(1, 2, 1);
-    scale = 0.5;
+ax1 = subplot(1, 2, 1)
+    scale = 0.1;
     hold on
     traj.Xdelta_true = traj.Xdelta - traj.ground_truth.W;
-    quiver3(traj.Xn(1, :), traj.Xn(2, :), traj.Xn(3, :), ...
+    quiver3(traj.Xn(1, :), traj.Xn(2, :), scale*traj.Xn(3, :), ...
         scale*traj.Xdelta(1, :), scale*traj.Xdelta(2, :), scale*traj.Xdelta(3, :), 'autoscale','off')
-    quiver3(traj.Xn(1, :), traj.Xn(2, :), traj.Xn(3, :), ...
+    quiver3(traj.Xn(1, :), scale*traj.Xn(2, :), scale*traj.Xn(3, :), ...
         scale*traj.Xdelta_true(1, :),scale*traj.Xdelta_true(2, :), scale*traj.Xdelta_true(3, :), 'autoscale','off')
-    legend({'Truth', 'Noisy'}, 'location', 'southeast')
+    legend({'Truth', 'Noisy'})
     xlabel('$x_1$', 'interpreter', 'latex')
     ylabel('$x_2$', 'interpreter', 'latex')
     zlabel('$x_3$', 'interpreter', 'latex')
     title('Observed Data', 'fontsize', 16)    
-view(-26, 20)
+
     linkaxes([ax1; ax2], 'xyz')
 
 %% analyze the Lyapunov function

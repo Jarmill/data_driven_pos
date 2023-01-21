@@ -186,8 +186,8 @@ classdef posstab_lpv_f < posstab_f
         end
 
         function out = recover_controller(obj, vars)
-            %RECOVER get the controllers and parameters
-            
+            %RECOVER get the controllers and parameters                       
+
             Nv = size(obj.Th_vert, 2);
             for i = 1:Nv
                 out.K{i} = out.S(:, :, i)*diag(1./out.y);
