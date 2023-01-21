@@ -185,12 +185,14 @@ classdef posstab_lpv_f < posstab_f
             poly_out.d = [kron(ones(Nv, 1), vars.y-obj.delta*ones(n,1)); zeros((Nv*n^2), 1)];       
         end
 
-        function out = recover_controller(obj, vars)
+        function K_out = recover_controller(obj, vars)
             %RECOVER get the controllers and parameters                       
 
             Nv = size(obj.Th_vert, 2);
+            K_out = cell(Nv, 1);
+            vy = value(vars.y);
             for i = 1:Nv
-                out.K{i} = out.S(:, :, i)*diag(1./out.y);
+                K_out{i} = value(vars.S(:, :, i))*diag(1./vy);
             end
         end
 
