@@ -1,8 +1,8 @@
 %test the DDC algorithm on a discrete-time switched system
-SOLVE = 0;
-SYSSAMPLE = 0;
-TRAJ = 1;
-PLOT = 1;
+SOLVE = 1;
+SYSSAMPLE = 1;
+TRAJ = 0;
+PLOT = 0;
 
 rng(482, 'twister')
 

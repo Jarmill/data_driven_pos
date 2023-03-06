@@ -60,6 +60,15 @@ classdef posstab_switch_diffK_cont_f < posstab_switch_cont_f
 			poly_out = struct('C',C_stab, 'd', d_stab);
 			                 
         end
+        
+        function K = recover_controller(obj, vars)
+            %RECOVER_CONTROLLER recover the controller
+             K = cell(obj.Nsys, 1);
+            for i = 1:obj.Nsys
+                K{i} = value(squeeze(vars.S(:, :, i))) * diag(1./value(vars.y));
+            end            
+
+        end
 
     end
 end
