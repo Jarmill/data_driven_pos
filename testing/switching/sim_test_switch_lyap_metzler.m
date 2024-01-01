@@ -30,16 +30,31 @@ traj = PS.sim(T, sys);
 Lam = ones(n, n)/n; %a nonnegative matrix satisfying Lam*1 = 1 (markov)
 
 v = sdpvar(n, n, 'full');
+Y = sdpvar(m, n, Nsys);
+
+
+lm_expr = zeros(Nsys, n, 'like', sdpvar);
+for i = 1:Nsys
+    for j = 1:n
+        if j ~= i
+            lm_expr(:, i) = lm_expr(:, i) + Lam(i, j)*(v(:, j)- v(:, i));
+        end
+    end
+end
+
+% end
 
 eta = 1e-3;
 cons = [reshape(v, [], 1)>=eta];
 pos_cons = [];
 stab_cons = [];
+M = metzler_indexer(n);
 for i = 1:Nsys   
 
 %     LM_curr = 
-    stab_cons = [stab_cons; v(:, i) - sys.A{i}*(v*Lam(i, :)') - eta >= 0];    
-%     pos_cons = [pos_cons; reshape(sys.A{i}*diag(v(:, i)) + sys.B{i}*Y(:, :, i), [], 1)>=0];   
+    stab_cons = [stab_cons; -lm_expr(:, i)- sys.A{i}*v(:, i)  - eta >= 0];    
+    Acl_vec = reshape(sys.A{i}*diag(v(:, i)) + sys.B{i}*Y(:, :, i), [], 1);
+    pos_cons = [pos_cons;Acl_vec(M)>=0];   
 end
 
 cons = [cons; stab_cons; pos_cons];
