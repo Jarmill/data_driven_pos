@@ -1,5 +1,6 @@
 %discrete-time p2p
 
+rng(14,"twister")
 
 A0 = [0.7, 0, 0.2; 0.3, 0.3, 0.3; 0.2, 0.1, 0.6];
 B0 = [0 -1; 0 -1; 3 1];
@@ -48,9 +49,10 @@ PRIOR_KNOWLEDGE = 1;
 
 
 %% sample a trajectory
-epsilon = 0.25;
+% epsilon = 0.1;
+% epsilon = 0.25;
 % epsilon = 0.5;
-% epsilon = 1;
+epsilon = 1;
 % epsilon = 0;
 PS = possim_switch_cont(n, m, epsilon, N);
 sys = struct;

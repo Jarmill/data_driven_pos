@@ -35,7 +35,7 @@ E = [1 0; 0 0; 0 1];
 F = zeros(n, 1);
 
 
-SCENARIO = 1;
+SCENARIO = 2;
 %0: same controller on all modes
 %1: different controller on all modes
 %2: periodic switching A0 -> A1 -> A2 -> A0
