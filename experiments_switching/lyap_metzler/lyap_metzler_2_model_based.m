@@ -1,13 +1,20 @@
-A1 = [-1, 2, 0; 2, -3, 1; 1, 1, 1];
-A2 = [-4, 2.3, 0.5; 2.3, -1, -0.5; -2.5, -2.5, 2.5];
-A3 = [1 2 0; 1 -1 0; 0 1 1];
+% A1 = [-1, 2; 2, -3];
+% A3 = [1.5 0; 2 -1];
 
-B1 = [1; 2; 1];
-B2 = [0; 0.5; 0.5];
-B3 = [0; 0; 1];
+% A1 = [-1, 2; 2, -3];
+% A2 = [-4, 2.3; 2.3, -1];
 
-A = {A1, A3};
-B = {B1, B3};
+A1 = [2, 1; 1, 2];
+A2 = [1, 0; 2, 2];
+
+B1 = [1; 0];
+B2 = [0; 1];
+% B3 = [0; -1];
+% B1 = [];
+% B3 = [];
+
+A = {A1, A2};
+B = {B1, B2};
 
 
 
@@ -19,7 +26,7 @@ N = length(A);
 
 v = sdpvar(n, N, 'full');
 S = sdpvar(m, n, N);
-Lam = ones(n, N)*10; %a nonnegative matrix satisfying Lam*1 = 1 (markov)
+Lam = ones(n, N)*50; %a nonnegative matrix satisfying Lam*1 = 1 (markov)
 % Lam = zeros(n, N);
 lm_expr = zeros(n, N, 'like', sdpvar);
 for i = 1:N
@@ -71,11 +78,13 @@ end
 
 disp(e_rec)
 
+
+
 %% figure out the system
 
 if sol.problem==0
 Box = 1;
-Npts = 5;
+Npts = 10;
 xx = linspace(0, Box, Npts);
 
 % x0 = [1;0];
@@ -83,23 +92,19 @@ figure(1)
 clf
 hold on 
 T = 5;
-for i = 1:Npts
-    for j = 1:Npts
-        for k = 1:Npts
-            x0 = [xx(i), xx(j), xx(k)];
-            [tc, xc] = ode23(@(t, x) switch_clp(t, x, A, B, v_rec, K_rec), [0, T], x0);
-            plot3(xc(:, 1), xc(:, 2), xc(:, 3))
-        end
-    end   
-end
+for j = 1:Npts
+    for k = 1:Npts
+        x0 = [xx(j), xx(k)];
+        [tc, xc] = ode23(@(t, x) switch_clp(t, x, A, B, v_rec, K_rec), [0, T], x0);
+        plot(xc(:, 1), xc(:, 2))
+    end
+end   
 
 xprev = xlim;
 yprev = xlim;
-zprev = xlim;
 xlim([0, xprev(2)]);
 ylim([0, yprev(2)]);
-zlim([0, zprev(2)]);
-view(3);
+% view(3);
 else
     disp('Infeasible!')
 end
