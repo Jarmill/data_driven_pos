@@ -17,7 +17,6 @@ N = length(Atrue);
 M = metzler_indexer(n);
 
 PLOT = 1;
-PLOT_CONSISTENT= 1;
 %% sample a trajectory
 % epsilon = 0.05;
 % epsilon = 1e-5;
@@ -169,11 +168,7 @@ end
 
 %% plot consistent systems
 if PLOT_CONSISTENT
-    % x0 = [1; 1];
-
-    Box = 1;
-    Npts = 4;
-    xx = linspace(0, Box, Npts);
+    x0 = [1; 1];
 
     c = sdpvar(length(A(:)), 1);
     P = optimizer([prior_con; traj_con], c'*A(:), [], c, A);
@@ -184,23 +179,15 @@ if PLOT_CONSISTENT
     figure(2)
     clf
     hold on
-    for j = 1:Npts
-        for k = 1:Npts
-            x0 = [xx(j); xx(k)];
-            Nplant = 20;
-            for i = 1:Nplant
-                ccurr = sphere_sample(1, length(A(:)))';
-                Acurr = P(ccurr);
-        
-                Acell = {Acurr(:, :, 1), Acurr(:, :, 2)};
-        
-                [tc, xc] = ode23(@(t, x) switch_clp(t, x, Acell, Btrue, v_rec, K_rec), [0, T], x0);
-                plot(xc(:, 1), xc(:, 2), 'c')
-            end
-            scatter(x0(1), x0(2), 200, 'k')
-            xlabel('$x_1$', 'interpreter', 'latex', 'fontsize', 14)
-            ylabel('$x_2$', 'interpreter', 'latex', 'fontsize', 14)
-        end
+    Nplant = 20;
+    for i = 1:Nplant
+        ccurr = sphere_sample(length(A(:)), 1)';
+        Acurr = P(ccurr);
+
+        Acell = {Acurr(:, :, 1), Acurr(:, :, 2)};
+
+        [tc, xc] = ode23(@(t, x) switch_clp(t, x, Atrue, Btrue, v_rec, K_rec), [0, T], x0);
+
     end
 else
     disp('no plot (consistent)')
