@@ -44,7 +44,7 @@ The code `pos_p2p_f` and `pos_p2p_cont_f` create controllers u=Kx that minimize 
 
 The classes (`posstab`, `posstab_cont`, `pos_p2p`, `pos_p2p_cont`) use the Yalmip robust optimization package https://yalmip.github.io/tutorial/robustoptimization/ to eliminate the plant parameters (A, B) and derive the robust counterpart (utilizing the duality option). The derived programs are equivalent, but utilizing the `robustoptimization` package adds a preprocessing cost.
 
-The README in the `experiments` folder describes all test scripts.
+The README in the `experiments` folder describes all test scripts. The folder `experiments_switching' performs experiments with arbitrary/graph-constrained switching, linear parameter-varying systems, and controlled switching.
 
 ## Reference
 J. Miller, T. Dai, M. Sznaier and B. Shafai, "Data-Driven Control of Positive Linear Systems using Linear Programming," 2023 62nd IEEE Conference on Decision and Control (CDC), Singapore, Singapore, 2023, pp. 1588-1594, doi: 10.1109/CDC49753.2023.10383859. (https://ieeexplore.ieee.org/document/10383859)
