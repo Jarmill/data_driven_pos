@@ -181,13 +181,18 @@ if PLOT_CONSISTENT
     c0 = ones(length(A(:)), 1);
     A0 = P(c0);
 
+    Nplant = 25;
+
+    colors = linspecer(2);
+
     figure(2)
     clf
     hold on
+    x0_list = [];
     for j = 1:Npts
         for k = 1:Npts
             x0 = [xx(j); xx(k)];
-            Nplant = 20;
+            x0_list = [x0_list, x0];
             for i = 1:Nplant
                 ccurr = sphere_sample(1, length(A(:)))';
                 Acurr = P(ccurr);
@@ -195,13 +200,17 @@ if PLOT_CONSISTENT
                 Acell = {Acurr(:, :, 1), Acurr(:, :, 2)};
         
                 [tc, xc] = ode23(@(t, x) switch_clp(t, x, Acell, Btrue, v_rec, K_rec), [0, T], x0);
-                plot(xc(:, 1), xc(:, 2), 'c')
+                plot(xc(:, 1), xc(:, 2), 'Color',colors(1, :))
             end
-            scatter(x0(1), x0(2), 200, 'k')
+
+            [ttc, xtc] = ode23(@(t, x) switch_clp(t, x, Atrue, Btrue, v_rec, K_rec), [0, T], x0);
+                plot(xtc(:, 1), xtc(:, 2), 'Color',colors(2, :))
+            
             xlabel('$x_1$', 'interpreter', 'latex', 'fontsize', 14)
             ylabel('$x_2$', 'interpreter', 'latex', 'fontsize', 14)
         end
     end
+    scatter(x0_list(1, :), x0_list(2, :), 200, 'k')
 else
     disp('no plot (consistent)')
 end

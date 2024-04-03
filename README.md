@@ -47,8 +47,8 @@ The classes (`posstab`, `posstab_cont`, `pos_p2p`, `pos_p2p_cont`) use the Yalmi
 The README in the `experiments` folder describes all test scripts.
 
 ## Reference
-To be uploaded to arXiv.
+J. Miller, T. Dai, M. Sznaier and B. Shafai, "Data-Driven Control of Positive Linear Systems using Linear Programming," 2023 62nd IEEE Conference on Decision and Control (CDC), Singapore, Singapore, 2023, pp. 1588-1594, doi: 10.1109/CDC49753.2023.10383859. (https://ieeexplore.ieee.org/document/10383859)
 
 ## Contact
-For comments and questions please email [Jared Miller](mailto:miller.jare@northeastern.edu?Subject=data_driven_pos).
+For comments and questions please email [Jared Miller](mailto:jarmiller@control.ee.ethz.ch?Subject=data_driven_pos).
 
